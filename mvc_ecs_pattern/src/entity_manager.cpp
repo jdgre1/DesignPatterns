@@ -3,8 +3,8 @@
 namespace patterns
 {
 
-size_t FIELD_HEIGHT_MAX = 60;
-size_t FIELD_WIDTH_MAX = 100;
+size_t FIELD_HEIGHT_MAX = 800;
+size_t FIELD_WIDTH_MAX = 600;
 
 EntityManager* EntityManager::instancePtr = NULL;  
 

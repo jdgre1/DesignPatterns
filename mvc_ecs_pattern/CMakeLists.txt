@@ -13,6 +13,7 @@ add_executable(ECS_DEMO
             src/entity_manager.cpp
             src/game.cpp
             src/system.cpp
+            src/utils.cpp
             src/viewer.cpp
 )   
 

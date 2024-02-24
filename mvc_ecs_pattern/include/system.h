@@ -23,7 +23,7 @@ class MovementSystem : ISystem
     private:
         MovementSystem(){}
         static MovementSystem* instancePtr;
-
+        double m_angleIncrement = 20.0;
 
 };
 

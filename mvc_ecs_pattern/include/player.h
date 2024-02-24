@@ -16,12 +16,19 @@ namespace patterns {
 
 enum KeyboardCommand
 {
+    NO_COMMAND,
     LEFT,
     RIGHT,
     FORWARD,
     BACKWARD,
     SPEED_INCREASE,
     SPEED_DECREASE
+};
+
+enum Direction
+{
+    FORWARDS,
+    BACKWARDS
 };
 
 class Player
@@ -40,7 +47,15 @@ class Player
         }
 
         KeyboardCommand GetLastKeyboardCommand(){return m_lastKeyboardCommand;}
-
+        double GetAngleOfRotation(){ return m_directionThetaDegrees;}
+        double SetAngleOfRotation(double angle){ return m_directionThetaDegrees = angle;}
+        void SetDirection(Direction d){m_direction = d;}
+        double GetSpeed(){ return m_currSpeed;}
+        void SetSpeed(double speed){m_currSpeed = speed;}
+        Direction GetDirection(){ return m_direction;}
+        void setLastKeyboardCommand(KeyboardCommand kcmd){
+            m_lastKeyboardCommand = kcmd;
+        }
         void turnLeft();
         void turnRight();
         void forwards();
@@ -56,8 +71,9 @@ class Player
         Components::VelocityComponent m_velComponent;
         Entity m_id;
         double m_directionThetaDegrees = 0.0;
+        double m_currSpeed = 0.0;
         KeyboardCommand m_lastKeyboardCommand;
-
+        Direction m_direction;
 
 };
 } // namespace patterns

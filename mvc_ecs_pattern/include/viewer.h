@@ -3,6 +3,8 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
+#include <entity_manager.h>
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
@@ -26,7 +28,7 @@ class Viewer
         void Create();
         void SetWidth(size_t width){m_width = width;}
         void SetHeight(size_t height){m_height = height;};
-        bool RenderFrame();
+        bool RenderFrame(EntityManager* em);
         
 
     private:
@@ -35,7 +37,7 @@ class Viewer
 
         }
 
-        
+        SDL_Color playerColor = {120, 255, 120};
         static Viewer* instancePtr;
         size_t m_height;
         size_t m_width;

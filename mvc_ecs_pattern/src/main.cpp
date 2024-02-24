@@ -7,7 +7,7 @@
 int main(int argc, char* argv[])
 {
    // create a game on a 800x600 window
-    patterns::Game* game = patterns::Game::GetInstance(800, 600);
+    patterns::Game* game = patterns::Game::GetInstance(patterns::FIELD_HEIGHT_MAX, patterns::FIELD_WIDTH_MAX);
 
     while(game->isRunning()) 
     {

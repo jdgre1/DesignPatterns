@@ -18,34 +18,38 @@ void Game::readInput()
 {
     SDL_Event sdl_event;
     SDL_PollEvent(&sdl_event);
-    const Uint8* keystates = SDL_GetKeyboardState(NULL);
 
-    // Handle quit/escape, left, right, backward, and forward keys
-    if (keystates[SDL_SCANCODE_ESCAPE] || sdl_event.type == SDL_QUIT) {
-        m_isRunning = false;
+   if (sdl_event.type == SDL_KEYDOWN && !sdl_event.key.repeat){
+        std::cout << "sdl_event.type: " << sdl_event.type;
+
+        const Uint8* keystates = SDL_GetKeyboardState(NULL);
+        // Handle quit/escape, left, right, backward, and forward keys
+        if (keystates[SDL_SCANCODE_ESCAPE] || sdl_event.type == SDL_QUIT) {
+            m_isRunning = false;
+        }
+        else if (keystates[SDL_SCANCODE_LEFT]) {
+            m_controller->userInputLeft();
+            // Handle left key
+        } else if (keystates[SDL_SCANCODE_RIGHT]) {
+            m_controller->userInputRight();
+            // Handle right key
+        } else if (keystates[SDL_SCANCODE_UP]) {
+            m_controller->userInputForwards();
+            // Handle forward key
+        } else if (keystates[SDL_SCANCODE_DOWN]) {
+            m_controller->userInputBackwards();
+            // Handle backward key
+        } else if (keystates[SDL_SCANCODE_W]){
+            m_controller->userInputIncreaseSpeed();
+            // Handle backward key
+        } else if (keystates[SDL_SCANCODE_S]){
+            m_controller->userInputDecreaseSpeed();
+            // Handle backward key
+        }
+        // Process keystates and call controller functions
+        // m_controller = Controller::GetInstance();
+        // m_controller->userInputLeft();
     }
-    else if (keystates[SDL_SCANCODE_LEFT]) {
-        m_controller->userInputLeft();
-        // Handle left key
-    } else if (keystates[SDL_SCANCODE_RIGHT]) {
-        m_controller->userInputRight();
-        // Handle right key
-    } else if (keystates[SDL_SCANCODE_UP]) {
-        m_controller->userInputForwards();
-        // Handle forward key
-    } else if (keystates[SDL_SCANCODE_DOWN]) {
-        m_controller->userInputBackwards();
-        // Handle backward key
-    } else if (keystates[SDL_SCANCODE_W]){
-        m_controller->userInputIncreaseSpeed();
-        // Handle backward key
-    } else if (keystates[SDL_SCANCODE_S]){
-        m_controller->userInputDecreaseSpeed();
-        // Handle backward key
-    }
-    // Process keystates and call controller functions
-    m_controller = Controller::GetInstance();
-    // m_controller->userInputLeft();
 }
 
 void Game::initialiseViewer()
@@ -101,7 +105,10 @@ void Game::update(){
     m_movementSystem->update();
 }
 
-void Game::render() {}
+void Game::render() 
+{
+    m_viewer->RenderFrame(m_em);
+}
 
 Game::~Game()
 {
