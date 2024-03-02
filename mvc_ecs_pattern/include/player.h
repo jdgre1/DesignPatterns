@@ -3,6 +3,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include <character.h>
 #include <components.h>
 #include <utils.h>
 
@@ -31,7 +32,7 @@ enum Direction
     BACKWARDS
 };
 
-class Player
+class Player : public Character
 {
     public:
 
@@ -44,6 +45,9 @@ class Player
         ~Player(){}
         void SetEntityId(Entity e){
             m_id = e;
+        }
+        Entity GetId(){
+            return m_id;
         }
 
         KeyboardCommand GetLastKeyboardCommand(){return m_lastKeyboardCommand;}
