@@ -21,14 +21,13 @@ void MovementSystem::update()
 
     // 1. Loop over each entity
     std::unordered_map<Entity, Player*>& entityPlayerRegister = entityManager->GetEntityPlayerRegister();
-    size_t count = 0;
     for (auto& it : entityPlayerRegister) {
         Entity e = it.first;
         Player* p = it.second;
 
         KeyboardCommand k = p->GetLastKeyboardCommand();
-        double speedOld = p->GetSpeed();
-        double angleOld = p->GetAngleOfRotation();
+        double speed = p->GetSpeed();
+        double angle = p->GetAngleOfRotation();
         Direction d = p->GetDirection();
 
         // TODO
@@ -37,22 +36,22 @@ void MovementSystem::update()
         switch (k) {
         case KeyboardCommand::LEFT: {
             std::cout << "left";
-            double newAngle = angleOld + m_angleIncrement;
-            p->SetAngleOfRotation(newAngle);
-            if (newAngle >= 360.0) {
-                newAngle = 0;
+            angle += m_angleIncrement;
+            p->SetAngleOfRotation(angle);
+            if (angle >= 360.0) {
+                angle = 0;
             }
-            p->SetAngleOfRotation(newAngle);
+            p->SetAngleOfRotation(angle);
         }
 
         break;
         case KeyboardCommand::RIGHT: {
             std::cout << "right";
-            double newAngle = angleOld - m_angleIncrement;
-            if (newAngle < 0.0) {
-                newAngle = 359;
+            angle -= m_angleIncrement;
+            if (angle < 0.0) {
+                angle = 359;
             }
-            p->SetAngleOfRotation(newAngle);
+            p->SetAngleOfRotation(angle);
 
         } break;
         case KeyboardCommand::FORWARD: {
@@ -69,16 +68,14 @@ void MovementSystem::update()
             break;
         case KeyboardCommand::SPEED_INCREASE: {
             std::cout << "increase-speed";
-            double currentSpeed = speedOld;
-            currentSpeed++;
-            p->SetSpeed(currentSpeed);
+            speed++;
+            p->SetSpeed(speed);
 
         } break;
         case KeyboardCommand::SPEED_DECREASE: {
             std::cout << "decrease-speed";
-            double currentSpeed = speedOld;
-            currentSpeed--;
-            p->SetSpeed(currentSpeed);
+            speed--;
+            p->SetSpeed(speed);
 
         } break;
 
@@ -86,26 +83,49 @@ void MovementSystem::update()
             break;
         }
         p->setLastKeyboardCommand(KeyboardCommand::NO_COMMAND);
-        // std::cout << "count:" << count++;
         // Update components for one tick of the engine:
         auto& entityXY = compRegister.entityXYComponents[e];
         double t = 0.01; // 10ms engine tick
-        double changePosX = speedOld * 1 * cos(angleOld * M_PI / 180);
-        double changePosY = speedOld * 1 * sin(angleOld * M_PI / 180);
+        double angleRad = angle * M_PI / 180.0;
+
+        double changePosX = speed * cos(angleRad);
+        double changePosY = speed * sin(angleRad);
         entityXY.posX += changePosX;
         entityXY.posY += changePosY;
 
         auto& entityVel = compRegister.entityVelocityComponents[e];
-        entityVel.velX += speedOld * cos(angleOld * M_PI / 180);
-        entityVel.velY += speedOld * sin(angleOld * M_PI / 180);
+        entityVel.velX += speed * cos(angleRad);
+        entityVel.velY += speed * sin(angleRad);
 
-        // Prevent going outside boundary:
-        if(entityXY.posY > FIELD_HEIGHT_MAX+25){
-            entityXY.posY = FIELD_HEIGHT_MAX;
+        // Allow player to transition accross field and begin on the other side:
+        if(angleRad < 0.0001) {return;}
+        int32_t fieldHeight = static_cast<int32_t>(FIELD_HEIGHT_MAX);
+        int32_t fieldWidth = static_cast<int32_t>(FIELD_WIDTH_MAX);
+
+        if (entityXY.posY > fieldHeight + 25) {
+            int32_t newYPos = 0;
+            // double newXPos = -tan(angleRad) * (entityXY.posY - newYPos) / entityXY.posX ;
+            // double newXPos = entityXY.posX + (newYPos- entityXY.posY ) / tan(angleRad);
+            // entityXY.posX = static_cast<int32_t>(std::round(newXPos));
+            entityXY.posY = newYPos;
+        } else if (entityXY.posY < 1) {
+            int32_t newYPos = fieldHeight;
+            // double newXPos = entityXY.posX + (newYPos- entityXY.posY ) / tan(angleRad);
+            // double newXPos = -tan(angleRad) * (entityXY.posY - newYPos) / entityXY.posX ;
+            // entityXY.posX = static_cast<int32_t>(std::round(newXPos));
+            entityXY.posY = newYPos;
         }
 
-        if(entityXY.posX > FIELD_WIDTH_MAX+25){
-            entityXY.posX = FIELD_WIDTH_MAX;
+        if (entityXY.posX > fieldWidth + 25) {
+            int32_t newXPos = 0;
+            // double newYPos = entityXY.posX + (newYPos- entityXY.posY ) / tan(angleRad);
+            // entityXY.posY = static_cast<int32_t>(std::round(newYPos));
+            entityXY.posX = newXPos;
+        } else if (entityXY.posX < 1) {
+            int32_t newXPos = fieldWidth;
+            // double newYPos = entityXY.posX + (newYPos- entityXY.posY ) / tan(angleRad);
+            // entityXY.posY = static_cast<int32_t>(std::round(newYPos));
+            entityXY.posX = newXPos;
         }
     }
 }

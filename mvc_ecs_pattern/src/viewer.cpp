@@ -32,10 +32,20 @@ bool Viewer::RenderFrame(EntityManager* em)
 
         Player* p = em->GetPlayerByEntityId(e);
         double angle = p->GetAngleOfRotation();
-        int lineEndX = entityXY.posX +  50 * cos(angle * M_PI / 180);
-        int lineEndY = entityXY.posY +  50 * sin(angle * M_PI / 180);
+        int lineEndX = entityXY.posX +  50.0 * cos(angle * M_PI / 180.0f);
+        int lineEndY = entityXY.posY +  50.0 * sin(angle * M_PI / 180.0f);
         SDL_SetRenderDrawColor(m_renderer, 0, 0, 255, 255);
-        SDL_RenderDrawLine(m_renderer, entityXY.posY, entityXY.posX, lineEndX, lineEndY);
+        SDL_RenderDrawLine(m_renderer, entityXY.posY, entityXY.posX, lineEndY, lineEndX);
+        double xSquared = (entityXY.posX - lineEndX) * (entityXY.posX - lineEndX);
+        double ySquared = (entityXY.posY - lineEndY) * (entityXY.posY - lineEndY);
+        double lineLength = std::sqrt(xSquared + ySquared);
+        // std::cout << "\n\nangle is " << angle;
+        // std::cout << "\nlineLength is " << lineLength;
+        // std::cout << "\nlineEndX is " << lineEndX;
+        // std::cout << "\nlineEndY is " << lineEndY;
+        // std::cout << "\nentityXY.posX is " << entityXY.posX;
+        // std::cout << "\nentityXY.posY is " << entityXY.posY;
+
         // Utils::drawCircle(m_renderer, entityXY.posY, entityXY.posY, 50);
     }
 
