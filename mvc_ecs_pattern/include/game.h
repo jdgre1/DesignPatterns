@@ -6,7 +6,7 @@
 // local
 #include <controller.h>
 #include <entity_manager.h>
-
+#include <menu.h>
 #include <system.h>
 #include <viewer.h>
 
@@ -32,7 +32,7 @@ class Game
 
         static Game* GetInstance(std::size_t width, std::size_t height);
 
-
+        void start();
         void readInput();
         bool isRunning(){ return m_isRunning;}
         void update();
@@ -52,12 +52,13 @@ class Game
         std::size_t m_height;
         static Game* instancePtr;
 
-        Controller* m_controller;
-        Viewer* m_viewer;
+        std::unique_ptr<Menu> m_menu;
+        Controller* m_controll1er;
         MovementSystem* m_movementSystem;
         EntityManager* m_em;
-        SDL_Window* m_window; 
         SDL_Renderer* m_renderer;
+        Viewer* m_viewer;
+        SDL_Window* m_window; 
         bool m_is_running;
 };
 } // namespace patterns

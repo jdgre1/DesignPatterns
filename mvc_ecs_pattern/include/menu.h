@@ -26,7 +26,7 @@ class Menu
 
         // static Menu* GetInstance();
         Menu();
-        void startMenu();
+        void start();
 
     private:
         // Menu() 

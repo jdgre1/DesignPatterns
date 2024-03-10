@@ -14,6 +14,17 @@ Game* Game::GetInstance(std::size_t width, std::size_t height)
     return instancePtr;
 }
 
+void Game::start()
+{
+    m_menu->start();
+    initialiseController();
+    initialiseEntityManager();
+    initialiseSystems();
+    initialiseViewer();
+    CreatePlayer();
+    m_isRunning = true;
+}
+
 void Game::readInput()
 {
     SDL_Event sdl_event;
@@ -73,13 +84,9 @@ void Game::initialiseController()
 Game::Game(std::size_t width, std::size_t height)
     : m_width(width)
     , m_height(height)
+    , m_menu(std::make_unique<Menu>()) 
 {
-    initialiseController();
-    initialiseEntityManager();
-    initialiseSystems();
-    initialiseViewer();
-    CreatePlayer();
-    m_isRunning = true;
+     
 }
 
 void Game::CreatePlayer()

@@ -53,17 +53,17 @@ SDL_Color returnColourFromCode(size_t selectionId)
 }
 
 // Use cin for now:
-void Menu::startMenu()
+void Menu::start()
 {
     // ToDo: Error Checking
     // Menu menu GetInstance();
     size_t numOrcs = 0;
-    std::cout << "\nPlease specify how many orcs will be on the screen";
+    std::cout << "\nPlease specify how many orcs will be on the screen: ";
     std::cin >> numOrcs;
     for (size_t i = 0; i < numOrcs; i++) {
         size_t colourCode = 0;
         std::cout << "\nPlease specify the colour of orc " << i + 1
-                  << ": Either '1' for blue, '2' for green or '3' for red.";
+                  << ": Either '1' for blue, '2' for green or '3' for red. ";
         std::cin >> colourCode;
         std::unique_ptr<Character> pOrc = m_pCf->MakeCharacter(CharacterTypes::OrcType);
         
@@ -73,12 +73,12 @@ void Menu::startMenu()
     }
 
     size_t numTrolls = 0;
-    std::cout << "\nPlease specify how many trolls will be on the screen";
+    std::cout << "\nPlease specify how many trolls will be on the screen: ";
     std::cin >> numTrolls;
     for (size_t i = 0; i < numTrolls; i++) {
         size_t colourCode = 0;
         std::cout << "\nPlease specify the colour of orc " << i + 1
-                  << ": Either '1' for blue, '2' for green or '3' for red.";
+                  << ": Either '1' for blue, '2' for green or '3' for red. ";
         std::cin >> colourCode;
         std::unique_ptr<Character> pTroll = m_pCf->MakeCharacter(CharacterTypes::TrollType);
 
