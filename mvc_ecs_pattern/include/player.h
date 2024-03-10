@@ -26,12 +26,6 @@ enum KeyboardCommand
     SPEED_DECREASE
 };
 
-enum Direction
-{
-    FORWARDS,
-    BACKWARDS
-};
-
 class Player : public Character
 {
     public:

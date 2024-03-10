@@ -6,6 +6,8 @@
 #include <orc.h>
 #include <troll.h>
 
+#include <memory>
+
 #include <cassert>
 #include <iostream>
 #include <stdint.h>
@@ -13,47 +15,60 @@
 
 namespace patterns
 {
+    enum class CharacterTypes
+    {
+         OrcType,
+         TrollType
+    };
 
-class CharacterFactory
+class CharacterFactoryBase
 {
 public:
-    // Delete copy constructor
-    CharacterFactory(const CharacterFactory& obj) = delete;
-    // /** * Singletons should not be assignable. */
-    void operator=(const CharacterFactory&) = delete;
+    virtual std::unique_ptr<Character> MakeCharacter(CharacterTypes characterType) = 0;
 
-    static CharacterFactory* GetInstance();
-
-    virtual Character* FactoryMethod() = 0;
-    virtual Character* Character() = 0;
-
-    void CreateCharacter(){
-        Character* character = this->FactoryMethod();
-    }
-
-private:
-    CharacterFactory();
-
-    static CharacterFactory* instancePtr;
 };
 
-
-class OrcFactory : public CharacterFactory
+class CharacterFactory : CharacterFactoryBase
 {
-    Character* FactoryMethod() override {
-        return new Orc();
-    }
+    public:
+        std::unique_ptr<Character> MakeCharacter(CharacterTypes characterType) override
+        {
+            switch(characterType)
+            {
+                case CharacterTypes::OrcType:
+                    return std::unique_ptr<Character>(std::make_unique<Orc>());
+                    // return std::make_unique<Orc>();
+
+                case CharacterTypes::TrollType:
+                    return std::unique_ptr<Character>(std::make_unique<Troll>());
+                    // return std::make_unique<Troll>();
+
+                default:
+                {
+                    std::cout << "\nCharacter type does not exist in factory";
+                    return nullptr;
+                }
+            }
+        }
 
 };
+// class OrcFactory : public CharacterFactory
+// {
+
+//      std::unique_ptr<Character> FactoryMethod() override {
+//         return std::make_unique<Orc>();
+//     }
+
+// };
 
 
-class TrollFactory : public CharacterFactory
-{
-    Character* FactoryMethod() override {
-        return new Troll();
-    }
+// class TrollFactory : public CharacterFactory
+// {
+//     std::unique_ptr<Character> FactoryMethod() override {
+//         return std::make_unique<Troll>();
+//     }
 
-};
+// };
 
 
 } // namespace patterns
