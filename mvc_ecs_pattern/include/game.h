@@ -43,6 +43,7 @@ class Game
         void initialiseViewer();
         void initialiseController();
         void initialiseEntityManager();
+        void initialiseMenu();
         void initialiseSystems();
         void CreatePlayer();
 
@@ -52,8 +53,9 @@ class Game
         std::size_t m_height;
         static Game* instancePtr;
 
+        // Should I make all of these unique_ptrs?
         std::unique_ptr<Menu> m_menu;
-        Controller* m_controll1er;
+        Controller* m_controller;
         MovementSystem* m_movementSystem;
         EntityManager* m_em;
         SDL_Renderer* m_renderer;

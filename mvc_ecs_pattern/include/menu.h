@@ -27,6 +27,9 @@ class Menu
         // static Menu* GetInstance();
         Menu();
         void start();
+        std::vector<std::shared_ptr<Character>> const& getCharacters() const{   
+            return m_characters;
+        }
 
     private:
         // Menu() 
@@ -43,7 +46,7 @@ class Menu
         bool m_is_running;
         // std::vector<Orc> m_orcs;
         // std::vector<Troll> m_trolls;
-        std::vector<std::unique_ptr<Character>> m_characters;
+        std::vector<std::shared_ptr<Character>> m_characters;
         std::unique_ptr<CharacterFactory> m_pCf;
         // std::unique_ptr<OrcFactory> m_of;
 

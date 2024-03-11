@@ -65,7 +65,7 @@ void Menu::start()
         std::cout << "\nPlease specify the colour of orc " << i + 1
                   << ": Either '1' for blue, '2' for green or '3' for red. ";
         std::cin >> colourCode;
-        std::unique_ptr<Character> pOrc = m_pCf->MakeCharacter(CharacterTypes::OrcType);
+        std::shared_ptr<Character> pOrc = m_pCf->MakeCharacter(CharacterTypes::OrcType);
         
         SDL_Color colour = returnColourFromCode(colourCode);
         pOrc->setColour(colour);
@@ -80,11 +80,10 @@ void Menu::start()
         std::cout << "\nPlease specify the colour of orc " << i + 1
                   << ": Either '1' for blue, '2' for green or '3' for red. ";
         std::cin >> colourCode;
-        std::unique_ptr<Character> pTroll = m_pCf->MakeCharacter(CharacterTypes::TrollType);
+        std::shared_ptr<Character> pTroll = m_pCf->MakeCharacter(CharacterTypes::TrollType);
 
         SDL_Color colour = returnColourFromCode(colourCode);
         pTroll->setColour(colour);
-
         m_characters.push_back(std::move(pTroll));
     }
 }

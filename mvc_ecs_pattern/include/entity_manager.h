@@ -23,10 +23,11 @@ class EntityManager
 {
     public:
 
-        struct ComponentRegister
+        struct ComponentRegister // ToDo: Needs to be array of indexes
         {
-            std::unordered_map<Entity, Components::XYComponent> entityXYComponents;
-            std::unordered_map<Entity, Components::VelocityComponent> entityVelocityComponents;
+            // std::unordered_map<Entity, Components::XYComponent> entityXYComponents;
+            // std::unordered_map<Entity, Components::VelocityComponent> entityVelocityComponents;
+
         };
 
         // Delete copy constructor
@@ -47,7 +48,6 @@ class EntityManager
         }
         
         std::unordered_map<Entity, Player*>& GetEntityPlayerRegister(){ return m_entityPlayerRegister;}
-
         Player* GetPlayerByEntityId(Entity e);
 
     private:
@@ -64,6 +64,17 @@ class EntityManager
         ComponentRegister m_componentRegister;
         static EntityManager* instancePtr;
         std::unordered_map<Entity, Player*> m_entityPlayerRegister;
+
+        // TODO - see https://austinmorlan.com/posts/entity_component_system/
+        // Should be an array not a map of velocity components to entity indices
+        // Then a map to map entities to indices
+        std::array<T, MAX_ENTITIES> mComponentArray;
+
+        // Map from an entity ID to an array index.
+        std::unordered_map<Entity, size_t> mEntityToIndexMap;
+
+        // Map from an array index to an entity ID.
+        std::unordered_map<size_t, Entity> mIndexToEntityMap;
 
 };
 } // namespace patterns

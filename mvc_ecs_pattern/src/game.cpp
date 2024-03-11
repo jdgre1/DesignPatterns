@@ -14,9 +14,28 @@ Game* Game::GetInstance(std::size_t width, std::size_t height)
     return instancePtr;
 }
 
-void Game::start()
+void Game::initialiseMenu()
 {
     m_menu->start();
+    auto& characterVector = m_menu->getCharacters();
+    for (std::shared_ptr<Character> pCharacter : characterVector) {
+        Entity e = m_em->CreateEntity();
+        m_em->AddEntityToComponentRegister(e);
+
+        if (std::dynamic_pointer_cast<Troll>(pCharacter)){
+            std::cout << "\nTroll!";
+        }
+        else if (std::dynamic_pointer_cast<Orc>(pCharacter)){
+            std::cout << "\nOrc!";
+        }
+        else{
+            std::cout << "\nCharacter not recognised!!";
+        }
+    }
+}
+
+void Game::start()
+{
     initialiseController();
     initialiseEntityManager();
     initialiseSystems();
@@ -30,15 +49,14 @@ void Game::readInput()
     SDL_Event sdl_event;
     SDL_PollEvent(&sdl_event);
 
-   if (sdl_event.type == SDL_KEYDOWN && !sdl_event.key.repeat){
+    if (sdl_event.type == SDL_KEYDOWN && !sdl_event.key.repeat) {
         std::cout << "sdl_event.type: " << sdl_event.type;
 
         const Uint8* keystates = SDL_GetKeyboardState(NULL);
         // Handle quit/escape, left, right, backward, and forward keys
         if (keystates[SDL_SCANCODE_ESCAPE] || sdl_event.type == SDL_QUIT) {
             m_isRunning = false;
-        }
-        else if (keystates[SDL_SCANCODE_LEFT]) {
+        } else if (keystates[SDL_SCANCODE_LEFT]) {
             m_controller->userInputLeft();
             // Handle left key
         } else if (keystates[SDL_SCANCODE_RIGHT]) {
@@ -50,10 +68,10 @@ void Game::readInput()
         } else if (keystates[SDL_SCANCODE_DOWN]) {
             m_controller->userInputBackwards();
             // Handle backward key
-        } else if (keystates[SDL_SCANCODE_W]){
+        } else if (keystates[SDL_SCANCODE_W]) {
             m_controller->userInputIncreaseSpeed();
             // Handle backward key
-        } else if (keystates[SDL_SCANCODE_S]){
+        } else if (keystates[SDL_SCANCODE_S]) {
             m_controller->userInputDecreaseSpeed();
             // Handle backward key
         }
@@ -71,22 +89,15 @@ void Game::initialiseViewer()
     m_viewer->Create();
 }
 
-void Game::initialiseSystems()
-{   
-    m_movementSystem = MovementSystem::GetInstance();
-}
+void Game::initialiseSystems() { m_movementSystem = MovementSystem::GetInstance(); }
 
-void Game::initialiseController()
-{   
-    m_controller = Controller::GetInstance();
-}
+void Game::initialiseController() { m_controller = Controller::GetInstance(); }
 
 Game::Game(std::size_t width, std::size_t height)
     : m_width(width)
     , m_height(height)
-    , m_menu(std::make_unique<Menu>()) 
+    , m_menu(std::make_unique<Menu>())
 {
-     
 }
 
 void Game::CreatePlayer()
@@ -98,24 +109,13 @@ void Game::CreatePlayer()
     m_em->AddEntityToPlayerRegister(e, p);
 
     // m_em->
-
 }
 
-void Game::initialiseEntityManager()
-{
-    m_em = EntityManager::GetInstance();
+void Game::initialiseEntityManager() { m_em = EntityManager::GetInstance(); }
 
-}
+void Game::update() { m_movementSystem->update(); }
 
-void Game::update(){ 
-
-    m_movementSystem->update();
-}
-
-void Game::render() 
-{
-    m_viewer->RenderFrame(m_em);
-}
+void Game::render() { m_viewer->RenderFrame(m_em); }
 
 Game::~Game()
 {
