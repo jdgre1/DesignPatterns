@@ -29,6 +29,9 @@ class Viewer
         void SetWidth(size_t width){m_width = width;}
         void SetHeight(size_t height){m_height = height;};
         bool RenderFrame(EntityManager* em);
+        SDL_Renderer* GetRenderer(){
+            return m_renderer;
+        }
         
 
     private:

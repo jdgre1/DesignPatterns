@@ -17,5 +17,4 @@ int main(int argc, char* argv[])
 }
 
 // TODO
-//  Fix compilation issues with 'Player not declared in this scope'
 //  Make const functions const variables / return const where possible

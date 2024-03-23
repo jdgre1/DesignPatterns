@@ -49,8 +49,6 @@ void Game::readInput()
     SDL_PollEvent(&sdl_event);
 
     if (sdl_event.type == SDL_KEYDOWN && !sdl_event.key.repeat) {
-        std::cout << "sdl_event.type: " << sdl_event.type;
-
         const Uint8* keystates = SDL_GetKeyboardState(NULL);
         // Handle quit/escape, left, right, backward, and forward keys
         if (keystates[SDL_SCANCODE_ESCAPE] || sdl_event.type == SDL_QUIT) {
@@ -86,6 +84,7 @@ void Game::initialiseViewer()
     m_viewer->SetWidth(m_width);
     m_viewer->SetHeight(m_height);
     m_viewer->Create();
+    m_movementSystem->SetRenderer(m_viewer->GetRenderer());
 }
 
 void Game::initialiseSystems() { m_movementSystem = MovementSystem::GetInstance(); }

@@ -19,11 +19,17 @@ class MovementSystem : ISystem
 
         static MovementSystem* GetInstance();
         void update();
+        void SetRenderer(SDL_Renderer* renderer){
+            m_renderer = renderer;
+        }
+        SDL_Point getNewStartingPoint(double x, double y, double angleRadians);
+
 
     private:
         MovementSystem(){}
         static MovementSystem* instancePtr;
         double m_angleIncrement = 20.0;
+        SDL_Renderer* m_renderer;
 
 };
 
