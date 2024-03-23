@@ -20,7 +20,6 @@ void Game::initialiseMenu()
     auto& characterVector = m_menu->getCharacters();
     for (std::shared_ptr<Character> pCharacter : characterVector) {
         Entity e = m_em->CreateEntity();
-        m_em->AddEntityToComponentRegister(e);
 
         if (std::dynamic_pointer_cast<Troll>(pCharacter)){
             std::cout << "\nTroll!";
@@ -103,7 +102,6 @@ Game::Game(std::size_t width, std::size_t height)
 void Game::CreatePlayer()
 {
     Entity e = m_em->CreateEntity();
-    m_em->AddEntityToComponentRegister(e);
     m_controller->SetPlayerId(e);
     Player* p = m_controller->GetPlayer();
     m_em->AddEntityToPlayerRegister(e, p);

@@ -21,7 +21,9 @@ Entity EntityManager::CreateEntity()
     assert(m_entitiesAvailable.size() != 0);
     Entity id = m_entitiesAvailable.front();
     m_entitiesAvailable.pop_back();
-    AddEntityToComponentRegister(id);
+    mEntityToIndexMap[id] = m_numEntities;
+    mIndexToEntityMap[m_numEntities] = id;
+    AddEntityToComponentRegister();
     return id;
 }
 
@@ -33,10 +35,11 @@ void EntityManager::DeleteEntity(Entity e)
 }
 
 
-void EntityManager::AddEntityToComponentRegister(Entity newId)
+void EntityManager::AddEntityToComponentRegister()
 {
-    m_componentRegister.entityXYComponents[newId].setPosition(0, 0);
-    m_componentRegister.entityVelocityComponents[newId].setVelocity(0.0, 0.0);
+    m_componentRegister.entityXYComponents[m_numEntities].setPosition(0, 0);
+    m_componentRegister.entityVelocityComponents[m_numEntities].setVelocity(0.0, 0.0);
+    m_numEntities++;
 }
 
 void EntityManager::AddEntityToPlayerRegister(Entity newId, Player* p)
@@ -46,8 +49,25 @@ void EntityManager::AddEntityToPlayerRegister(Entity newId, Player* p)
 
 void EntityManager::RemoveEntityFromComponentRegister(Entity e)
 {
-    m_componentRegister.entityXYComponents.erase(e);
-    m_componentRegister.entityVelocityComponents.erase(e);
+    size_t entityToRemoveIndex = mEntityToIndexMap[e];
+    m_componentRegister.entityXYComponents[entityToRemoveIndex] 
+        = m_componentRegister.entityXYComponents[m_numEntities];
+    m_componentRegister.entityVelocityComponents[entityToRemoveIndex] 
+        = m_componentRegister.entityVelocityComponents[m_numEntities];
+
+    mIndexToEntityMap[m_numEntities];
+
+    // Update map
+    // Replacing entity with that at end of array
+    Entity entityAtEndOfArray = mIndexToEntityMap[m_numEntities];
+    mIndexToEntityMap[entityToRemoveIndex] = entityAtEndOfArray;
+    mEntityToIndexMap[entityAtEndOfArray] = entityToRemoveIndex;
+
+    // Remove redundancies
+    mEntityToIndexMap.erase(e);
+    mIndexToEntityMap.erase(m_numEntities);
+
+    m_numEntities--;
 }
 
 Player* EntityManager::GetPlayerByEntityId(Entity e)
