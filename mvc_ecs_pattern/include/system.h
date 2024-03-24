@@ -22,7 +22,7 @@ class MovementSystem : ISystem
         void SetRenderer(SDL_Renderer* renderer){
             m_renderer = renderer;
         }
-        SDL_Point getNewStartingPoint(double x, double y, double angleRadians);
+        SDL_Point getNewStartingPoint(int condition, double x, double y, double angleRadians);
 
 
     private:
