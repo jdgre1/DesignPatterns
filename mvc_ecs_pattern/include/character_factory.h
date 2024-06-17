@@ -37,11 +37,9 @@ class CharacterFactory : CharacterFactoryBase
             {
                 case CharacterTypes::OrcType:
                     return std::unique_ptr<Character>(std::make_unique<Orc>());
-                    // return std::make_unique<Orc>();
 
                 case CharacterTypes::TrollType:
                     return std::unique_ptr<Character>(std::make_unique<Troll>());
-                    // return std::make_unique<Troll>();
 
                 default:
                 {
