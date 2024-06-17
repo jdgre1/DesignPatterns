@@ -13,10 +13,10 @@ int main()
     std::vector<std::shared_ptr<patterns::Coffee>> coffees;
     
     // 4. Prepare coffees
-    coffeeMachine.prepareOrder(coffees);
+    coffeeMachine.PrepareOrder(coffees);
 
     // 5. Display order
-    coffeeMachine.displayOrder(coffees);
+    coffeeMachine.DisplayOrder(coffees);
 
     return 0;
 }

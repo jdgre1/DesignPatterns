@@ -31,7 +31,7 @@ public:
         m_cf = std::move(cf);
     }
 
-    void prepareOrder(std::vector<std::shared_ptr<Coffee>>& order)
+    void PrepareOrder(std::vector<std::shared_ptr<Coffee>>& order)
     {
         bool stillOrdering = true;
         patterns::CoffeeType coffeeType;
@@ -115,7 +115,7 @@ public:
         }
     };
 
-    void displayOrder(std::vector<std::shared_ptr<Coffee>>& coffeeOrder)
+    void DisplayOrder(std::vector<std::shared_ptr<Coffee>>& coffeeOrder)
     {
         std::cout << "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\nPreparing orders:\n\n";
         size_t count = 1;
