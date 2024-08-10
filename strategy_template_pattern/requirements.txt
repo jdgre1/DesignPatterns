@@ -1,0 +1,11 @@
+bayesian-optimization==1.4.3
+cffi==1.16.0
+colorama==0.4.6
+joblib==1.4.2
+lightgbm==4.3.0
+pycparser==2.22
+scikit-learn==1.5.0
+shapely==2.0.3
+threadpoolctl==3.5.0
+transforms3d==0.4.1
+xgboost==2.0.3
