@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.20)
 set (CMAKE_CXX_STANDARD 17)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
 Project(BUG_ZAPPER)
+find_package(ament_cmake REQUIRED)
+find_package(OpenCV REQUIRED)
 
 include_directories(bug_zapper/include)
 include_directories(sim)
@@ -16,6 +22,7 @@ add_executable(BUG_ZAP
             bug_zapper/src/position.cpp
             bug_zapper/src/utils.cpp
             bug_zapper/src/viewer.cpp
+            sim/bug_sim.h
             sim/bug_sim.cpp
 )   
 
