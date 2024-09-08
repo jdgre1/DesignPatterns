@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<?xml-model
+   href="http://download.ros.org/schema/package_format3.xsd"
+   schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+ <name>bug_zapper</name>
+ <version>0.0.0</version>
+ <description>The Bug-Zapper package</description>
+ <maintainer email="example@email.com">jdgre1</maintainer>
+ <license>GNU General Public License</license>
+
+  <depend>rclcpp</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>cv_bridge</depend>
+ <export>
+   <build_type>ament_cmake</build_type>
+ </export>
+</package>
