@@ -1,4 +1,6 @@
 
+#include <opencv2/core/core.hpp>
+
 #include <bug_sim.h>
 
 using namespace std::chrono_literals;
@@ -10,13 +12,19 @@ namespace patterns
         , m_bugSpeedMax(bugSpeedMax)
         , m_bugStrength(bugStrength)
     {
+        m_startTime = this->get_clock()->now();
+        m_timer =  this->create_wall_timer(500ms, std::bind(&BugSim::simTimerCallback, this));
+
     }
 
-    void BugSim::start()
+
+    void BugSim::simTimerCallback()
     {
-        rclcpp::Time now;// = this.get_clock()->now();
-        //::now();
-    
+        cv::Mat cameraFrame(cv::Size(1000,800), CV_8UC3, cv::Scalar(255,255,255));
+
+
+        
+
     }
 
     

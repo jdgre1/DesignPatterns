@@ -35,6 +35,8 @@ add_executable(BUG_ZAP
 )   
 
 add_executable(BUG_SIM
+    sim/bug.h
+    sim/bug_factory.h
     sim/bug_sim.h
     sim/bug_sim.cpp
     sim/main.cpp
