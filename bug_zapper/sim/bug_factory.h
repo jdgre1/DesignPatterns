@@ -1,51 +1,53 @@
+#pragma once
 #ifndef BUG_FACTORY_H
 #define BUG_FACTORY_H
 
 #include <memory>
 #include <vector>
 
-namespace patterns 
+#include <bug.h>
+namespace patterns
 {
-enum class BugType
-{
-    Alien,
-    Zipper,
-    BigBertha
-};
-
-class CoffeeFactoryBase
-{
-
-public:
-    virtual std::unique_ptr<Coffee> MakeCoffee(CoffeeType coffeeType, CoffeeSize size,
-            MilkType type, CoffeeStrength strength, bool chocpowder = false) = 0;
-};
-
-class CoffeeFactory : CoffeeFactoryBase
-{
-public:
-    std::unique_ptr<Coffee> MakeCoffee(CoffeeType coffeeType, CoffeeSize size, MilkType type,
-            CoffeeStrength strength, bool chocpowder = false) override
+    enum class BugType
     {
-        switch (coffeeType) {
-        case CoffeeType::CappucinoType:
-            return std::unique_ptr<Coffee>(
-                    std::make_unique<Cappucino>(size, type, strength, chocpowder));
+        Alien,
+        Zipper,
+        BigBertha
+    };
 
-        case CoffeeType::DecafType:
-            return std::unique_ptr<Coffee>(
-                    std::make_unique<Decaf>(size, type, strength, chocpowder));
+    class BugFactoryBase
+    {
 
-        case CoffeeType::LatteType:
-            return std::unique_ptr<Coffee>(
-                    std::make_unique<Latte>(size, type, strength, chocpowder));
+    public:
+        virtual std::unique_ptr<Bug> CreateBug(BugType bugType, uint8_t bugSize, uint8_t speed, uint8_t strength) = 0;
+    };
 
-        default: {
-            std::cout << "\nCoffee type does not exist in factory";
-            return nullptr;
+    class BugFactory : BugFactoryBase
+    {
+    public:
+        std::unique_ptr<Bug> CreateBug(BugType bugType, uint8_t bugSize, uint8_t speed, uint8_t strength) override
+        {
+            switch (bugType)
+            {
+            case BugType::Alien:
+                return std::unique_ptr<Bug>(
+                    std::make_unique<AlienBug>(bugSize, speed, strength));
+
+            case BugType::Zipper:
+                return std::unique_ptr<Bug>(
+                    std::make_unique<ZipperBug>(bugSize, speed, strength));
+
+            case BugType::BigBertha:
+                return std::unique_ptr<Bug>(
+                    std::make_unique<BigBerthaBug>(bugSize, speed, strength));
+
+            default:
+            {
+                std::cout << "\nCoffee type does not exist in factory";
+                return nullptr;
+            }
+            }
         }
-        }
-    }
-};
-}// namespace patterns
+    };
+} // namespace patterns
 #endif
