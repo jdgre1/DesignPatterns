@@ -1,3 +1,4 @@
+#pragma once
 #ifndef BUG_H
 #define BUG_H
 
@@ -27,7 +28,7 @@ protected:
 };
 
 
-class AlienBug : Bug
+class AlienBug : public Bug
 {
     public:
         AlienBug(uint8_t size, uint8_t speed, uint8_t strength)
@@ -43,7 +44,7 @@ class AlienBug : Bug
 
 };
 
-class ZipperBug : Bug
+class ZipperBug : public Bug
 {
     public:
         ZipperBug(uint8_t size, uint8_t speed, uint8_t strength)
@@ -59,7 +60,7 @@ class ZipperBug : Bug
 
 };
 
-class BigBerthaBug : Bug
+class BigBerthaBug : public Bug
 {
     public:
         BigBerthaBug(uint8_t size, uint8_t speed, uint8_t strength)
