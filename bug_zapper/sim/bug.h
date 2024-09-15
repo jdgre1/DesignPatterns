@@ -6,6 +6,14 @@
 
 namespace patterns 
 {
+
+enum class BugType
+{
+    Alien,
+    Zipper,
+    BigBertha
+};
+
 class Bug
 {
 public:
