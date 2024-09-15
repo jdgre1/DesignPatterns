@@ -8,7 +8,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_lifecycle/lifecycle_node.hpp>
 
-#include <bug.h>
+#include <bug_factory.h>
 
 namespace patterns
 {
@@ -22,14 +22,16 @@ public:
 
 private:
     void simTimerCallback();
+    void AddRandomBug(BugType& bugtype);
 
     double m_bugSpeedMin;
     double m_bugSpeedMax;
     uint8_t m_bugStrength;
+    BugFactory m_bugfactory;
 
     rclcpp::Time m_startTime;
     rclcpp::TimerBase::SharedPtr m_timer;
-    std::vector<Bug> m_bugs;
+    std::vector<std::shared_ptr<Bug>> m_bugs;
 
 };
 
