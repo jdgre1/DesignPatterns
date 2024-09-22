@@ -27,14 +27,13 @@ public:
 
     uint8_t getSize(){ return m_size; }
 
-    Components::XYComponent getPos(){ return m_xyComponent; }
+    Components::XYComponent& getPos(){ return m_xyComponent; }
 
     uint8_t getSpeed(){ return m_speed; }
 
     uint8_t getStrength(){ return m_strength; }
 
-    std::string getType(){ return m_type; }
-
+    BugType getType(){ return m_type; }
 
     virtual std::string attack() const = 0;
 
@@ -46,7 +45,7 @@ protected:
     uint8_t m_speed;
     Components::XYComponent m_xyComponent;
     Components::VelocityComponent m_velComponent;
-    std::string m_type;
+    BugType m_type;
 };
 
 
@@ -56,7 +55,7 @@ class AlienBug : public Bug
         AlienBug(uint8_t size, uint8_t speed, uint8_t strength)
         : Bug(size, speed, strength)
         {
-            m_type = "Alien";
+            m_type = BugType::Alien;
         }
 
         std::string attack() const override
@@ -72,7 +71,7 @@ class ZipperBug : public Bug
         ZipperBug(uint8_t size, uint8_t speed, uint8_t strength)
         : Bug(size, speed, strength)
         {
-            m_type = "Zipper";
+            m_type = BugType::Zipper;
         }
 
         std::string attack() const override
@@ -88,7 +87,7 @@ class BigBerthaBug : public Bug
         BigBerthaBug(uint8_t size, uint8_t speed, uint8_t strength)
         : Bug(size, speed, strength)
         {
-            m_type = "BigBertha";
+            m_type = BugType::BigBertha;
         }
 
         std::string attack() const override

@@ -20,6 +20,26 @@
                 }
             ],
             "preLaunchTask": "build"
-        }
+        },
+        {
+            "name": "debug_bug_zapper",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/ros2/install/bug_zapper/lib/bug_zapper/BUG_SIM",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build_bug_zapper"
+        },
     ]
 }
