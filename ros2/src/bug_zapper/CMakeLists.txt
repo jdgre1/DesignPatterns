@@ -12,13 +12,16 @@ find_package(rclcpp_lifecycle REQUIRED)
 
 find_package(OpenCV REQUIRED)
 
+# find_package(MVC_ECS_PATTERN REQUIRED)
+
 include_directories(bug_zapper/include)
 include_directories(sim)
 include_directories(${rclcpp_INCLUDE_DIRS}
 					${rclcpp_lifecycle_INCLUDE_DIRS} 
 					${OpenCV_INCLUDE_DIRS}
+					"${CMAKE_CURRENT_SOURCE_DIR}/../../../mvc_ecs_pattern/include"
 					)
-
+# message(STATUS "Include directories: ${CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE}")
 
 add_executable(BUG_ZAP
 	bug_zapper/src/main.cpp

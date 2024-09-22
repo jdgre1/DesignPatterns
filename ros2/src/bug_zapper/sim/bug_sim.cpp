@@ -70,17 +70,17 @@ namespace patterns
         , m_bugStrength(bugStrength)
     {
         m_startTime = this->get_clock()->now();
-        m_timer =  this->create_wall_timer(500ms, std::bind(&BugSim::simTimerCallback, this));
-
+        m_timer =  this->create_wall_timer(100ms, std::bind(&BugSim::simTimerCallback, this));
     }
 
 
     void BugSim::simTimerCallback()
     {
         cv::Mat cameraFrame(cv::Size(1000,800), CV_8UC3, cv::Scalar(255,255,255));
-
+        int diffMs = ((this->get_clock()->now() - m_startTime).to_chrono<std::chrono::milliseconds>()).count();
+       
         size_t numBugs = m_bugs.size();
-        if (numBugs < 3) {
+        if (numBugs < 3 && diffMs % m_bugSpawnIntervalMs == 0) {
             BugType randomBugType = static_cast<BugType>(GenerateRandomNumberBetween(1, 3));
             AddRandomBug(randomBugType);
         }
@@ -88,10 +88,11 @@ namespace patterns
         for (std::shared_ptr<Bug> bug: m_bugs) 
         {
             // ~~~ ToDo ~~~
-            // bugSize = bug.getSize();
-            // bugSpeed = bug.getSpeed();
-            // bugStrength = bug.getStrength();
-            // bugPos = bug.getPos();
+            uint8_t bugSize = bug->getSize();
+            uint8_t bugSpeed = bug->getSpeed();
+            uint8_t bugStrength = bug->getStrength();
+            
+
             // bug.updatePos();
         }
     }
