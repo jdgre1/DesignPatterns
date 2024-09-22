@@ -32,7 +32,7 @@ private:
     rclcpp::Time m_startTime;
     rclcpp::TimerBase::SharedPtr m_timer;
     std::vector<std::shared_ptr<Bug>> m_bugs;
-
+    const int m_bugSpawnIntervalMs = 4000;
 };
 
 }  // namespace patterns
