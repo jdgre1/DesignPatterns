@@ -21,7 +21,6 @@ include_directories(${rclcpp_INCLUDE_DIRS}
 					${OpenCV_INCLUDE_DIRS}
 					"${CMAKE_CURRENT_SOURCE_DIR}/../../../mvc_ecs_pattern/include"
 					)
-# message(STATUS "Include directories: ${CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE}")
 
 add_executable(BUG_ZAP
 	bug_zapper/src/main.cpp
@@ -47,10 +46,14 @@ add_executable(BUG_SIM
 
 ament_target_dependencies(BUG_ZAP rclcpp)
 ament_target_dependencies(BUG_SIM rclcpp)
+
+
 target_link_libraries(BUG_SIM 
-						${OpenCV_LIBS}   
-						${rclcpp_LIBRARIES} 
-						${rclcpp_lifecycle_LIBRARIES}
+					${WEBP_LIBRARY}
+					${ILMIMF_LIBRARY}
+					${OpenCV_LIBS}   
+					${rclcpp_LIBRARIES} 
+					${rclcpp_lifecycle_LIBRARIES}
 					)
 
 

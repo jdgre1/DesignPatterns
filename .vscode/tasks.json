@@ -2,33 +2,21 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "configure",
+            "label": "build_bug_zapper",
             "type": "shell",
-            "command": "cmake",
-            "args": [
-                "-DCMAKE_BUILD_TYPE=Debug",
-                "-B${workspaceFolder}/mvc_ecs_pattern/build",  // Set the binary directory
-                "${workspaceFolder}/mvc_ecs_pattern"
+            "command": [
+                "source ~/.devenv/humble.sh;",
+                "cd ${workspaceFolder}/ros2;",
+                "colcon build --packages-select bug_zapper",
+                "--symlink-install",
+                "--event-handlers console_cohesion+",
+                "--cmake-args -DCMAKE_BUILD_TYPE=Debug"
             ],
+            "problemMatcher": [],
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
-        },
-        {
-            "label": "build",
-            "type": "shell",
-            "command": "cmake",
-            "args": ["--build", "${workspaceFolder}/mvc_ecs_pattern/build"],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "dependsOn": [
-                "configure"
-            ], // Optionally clean before configure
         }
-      
     ]
 }
-

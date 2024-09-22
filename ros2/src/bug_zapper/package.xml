@@ -12,6 +12,8 @@
   <depend>rclcpp</depend>
   <depend>rclcpp_lifecycle</depend>
   <depend>cv_bridge</depend>
+  <depend>python3-opencv</depend>
+  
  <export>
    <build_type>ament_cmake</build_type>
  </export>
