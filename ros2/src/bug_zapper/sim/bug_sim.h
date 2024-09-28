@@ -34,9 +34,10 @@ private:
     rclcpp::Time m_startTime;
     rclcpp::TimerBase::SharedPtr m_timer;
     std::vector<std::shared_ptr<Bug>> m_bugs;
-    const int m_bugSpawnIntervalMs = 4000;
-    const int FIELD_WIDTH_PIXELS = 1000;
-    const int FIELD_LENGTH_PIXELS = 1800;
+    const int m_bugSpawnTickInterval = 10;
+    int m_tickCounter = 0;
+    const int FIELD_WIDTH_PIXELS = 800;
+    const int FIELD_LENGTH_PIXELS = 1080;
     const int BUG_OFFSET_FROM_WIDTH_PIXELS = 50;
 };
 
