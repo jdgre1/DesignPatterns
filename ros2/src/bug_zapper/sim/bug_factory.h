@@ -9,40 +9,37 @@
 namespace patterns
 {
 
+class BugFactoryBase
+{
 
-    class BugFactoryBase
+public:
+    virtual std::shared_ptr<Bug> CreateBug(BugType bugType, uint8_t bugSize, uint8_t speed, uint8_t strength,
+                                           int32_t xPos, int32_t yPos) = 0;
+};
+
+class BugFactory : BugFactoryBase
+{
+public:
+    std::shared_ptr<Bug> CreateBug(BugType bugType, uint8_t bugSize, uint8_t speed, uint8_t strength, int32_t xPos,
+                                   int32_t yPos) override
     {
+        switch (bugType) {
+        case BugType::Alien:
+            return std::shared_ptr<Bug>(std::make_shared<AlienBug>(bugSize, speed, strength, xPos, yPos));
 
-    public:
-        virtual std::shared_ptr<Bug> CreateBug(BugType bugType, uint8_t bugSize, uint8_t speed, uint8_t strength) = 0;
-    };
+        case BugType::Zipper:
+            return std::shared_ptr<Bug>(std::make_shared<ZipperBug>(bugSize, speed, strength, xPos, yPos));
 
-    class BugFactory : BugFactoryBase
-    {
-    public:
-        std::shared_ptr<Bug> CreateBug(BugType bugType, uint8_t bugSize, uint8_t speed, uint8_t strength) override
+        case BugType::BigBertha:
+            return std::shared_ptr<Bug>(std::make_shared<BigBerthaBug>(bugSize, speed, strength, xPos, yPos));
+
+        default:
         {
-            switch (bugType)
-            {
-            case BugType::Alien:
-                return std::shared_ptr<Bug>(
-                    std::make_shared<AlienBug>(bugSize, speed, strength));
-
-            case BugType::Zipper:
-                return std::shared_ptr<Bug>(
-                    std::make_shared<ZipperBug>(bugSize, speed, strength));
-
-            case BugType::BigBertha:
-                return std::shared_ptr<Bug>(
-                    std::make_shared<BigBerthaBug>(bugSize, speed, strength));
-
-            default:
-            {
-                std::cout << "\nCoffee type does not exist in factory";
-                return nullptr;
-            }
-            }
+            std::cout << "\nCoffee type does not exist in factory";
+            return nullptr;
         }
-    };
+        }
+    }
+};
 } // namespace patterns
 #endif

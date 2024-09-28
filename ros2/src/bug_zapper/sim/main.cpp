@@ -14,9 +14,11 @@ int main(int argc, char **argv)
     // std::shared_ptr<rclcpp_lifecycle::LifecycleNode> node = std::make_shared<SomeClass>();
     executor.add_node(bug_sim_node->get_node_base_interface());
 
+    rclcpp::Rate rate(10);
+
     while(rclcpp::ok())
         executor.spin_once();
-
+        rate.sleep();
 
     rclcpp::shutdown();
     return 0;
