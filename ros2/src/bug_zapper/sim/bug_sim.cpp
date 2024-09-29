@@ -1,7 +1,8 @@
+#include <random>
+
 #include <bug_factory.h>
 #include <bug_sim.h>
 
-#include <random>
 
 using namespace std::chrono_literals;
 namespace patterns
@@ -27,15 +28,14 @@ BugSim::BugSim(double bugSpeedMin, double bugSpeedMax, uint8_t bugStrength)
 {
     m_startTime = this->get_clock()->now();
     m_timer = this->create_wall_timer(100ms, std::bind(&BugSim::simTimerCallback, this));
+    m_cameraFramePub = this->create_publisher<sensor_msgs::msg::Image>("cameraFrame", 10);
 }
 
-void BugSim::DrawBug(std::shared_ptr<Bug> bug, cv::Mat &frame, const int &timeMsPassed)
+void BugSim::DrawBug(std::shared_ptr<Bug> bug, cv::Mat &frame)
 {
     Components::XYComponent &xyPos = bug->getPos();
     uint8_t speed = bug->getSpeed();
-    std::cout << "Before xyPos.posX, xyPos.posY: (" << xyPos.posX << ", " << xyPos.posY << ")" << std::endl;
     xyPos.posY += speed * 100.0 / 1000.0;
-    std::cout << "After xyPos.posX, xyPos.posY: (" << xyPos.posX << ", " << xyPos.posY << ")" << std::endl;
     switch (bug->getType()) {
     case BugType::Alien:
     {
@@ -73,6 +73,27 @@ void BugSim::DrawBug(std::shared_ptr<Bug> bug, cv::Mat &frame, const int &timeMs
         return;
     }
     }
+}
+
+void BugSim::drawCameraFrame(cv::Mat &frame)
+{
+    // and its top left corner...
+    int y1 = int(FIELD_LENGTH_PIXELS * 0.5);
+    int y2 = int(FIELD_LENGTH_PIXELS * 0.80);
+    cv::Point pt1(2, y1);
+    // and its bottom right corner.
+    cv::Point pt2(FIELD_WIDTH_PIXELS - 2, y2);
+    // These two calls...
+    cv::rectangle(frame, pt1, pt2, cv::Scalar(255, 0, 255), 3);
+    cv::putText(frame, "Camera Frame", cv::Point(10, frame.rows / 2 - 10), cv::FONT_HERSHEY_DUPLEX, 1.0,
+                CV_RGB(118, 185, 0), 2);
+
+    cv::Mat cameraFrame = frame(cv::Range(pt1.y, pt2.y), cv::Range(pt1.x, pt2.x));
+    std_msgs::msg::Header header;
+    header.stamp = this->get_clock()->now(); // Add timestamp
+    sensor_msgs::msg::Image::SharedPtr imgMsg = cv_bridge::CvImage(header, "bgr8", cameraFrame).toImageMsg();
+    m_cameraFramePub->publish(*imgMsg.get());
+    std::cout << "Published!" << std::endl;
 }
 
 void BugSim::AddRandomBug(BugType &bugtype)
@@ -120,15 +141,13 @@ void BugSim::AddRandomBug(BugType &bugtype)
     m_bugs.push_back(m_bugfactory.CreateBug(bugtype, size, speed, strength, xPos, yPos));
 }
 
-void BugSim::simTimerCallback()
+void BugSim::processBugs(cv::Mat &frame)
 {
-    cv::Mat cameraFrame(cv::Size(FIELD_WIDTH_PIXELS, FIELD_LENGTH_PIXELS), CV_8UC3, cv::Scalar(255, 255, 255));
-    const int diffMs = ((this->get_clock()->now() - m_startTime).to_chrono<std::chrono::milliseconds>()).count();
     if (m_bugs.size() < 5 && m_tickCounter++ % m_bugSpawnTickInterval == 0) {
         BugType randomBugType = static_cast<BugType>(GenerateRandomNumberBetween(0, 2));
         AddRandomBug(randomBugType);
         m_tickCounter = 0;
-        std::cout << "Added bug!" << std::endl;
+        // std::cout << "Added bug!" << std::endl;
     }
     int bugToDelete = -1;
     int counter = 0;
@@ -138,20 +157,27 @@ void BugSim::simTimerCallback()
         // uint8_t bugSpeed = bug->getSpeed();
         // uint8_t bugStrength = bug->getStrength();
         Components::XYComponent &posXYBug = bug->getPos();
-        if (posXYBug.posY - bug->getSize() > cameraFrame.rows) {
+        if (posXYBug.posY - bug->getSize() > frame.rows) {
             bugToDelete = counter;
             continue;
         }
-        DrawBug(bug, cameraFrame, diffMs);
+        DrawBug(bug, frame);
         counter++;
     }
     if (bugToDelete > -1) {
         m_bugs.erase(m_bugs.begin() + bugToDelete);
-        std::cout << "Deleted bug!";
+        // std::cout << "Deleted bug!";
     }
+}
+
+void BugSim::simTimerCallback()
+{
+    cv::Mat field(cv::Size(FIELD_WIDTH_PIXELS, FIELD_LENGTH_PIXELS), CV_8UC3, cv::Scalar(255, 255, 255));
+    processBugs(field);
+    drawCameraFrame(field);
 
     cv::Mat resized;
-    cv::resize(cameraFrame, resized, cv::Size(), 0.75, 0.75);
+    cv::resize(field, resized, cv::Size(), 0.75, 0.75);
     cv::namedWindow("Bug-Frame");
     cv::imshow("Bug-Frame", resized);
     cv::waitKey(100);
