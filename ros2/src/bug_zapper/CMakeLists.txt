@@ -8,6 +8,9 @@ Project(bug_zapper)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(cv_bridge REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 
 find_package(OpenCV REQUIRED)
@@ -24,6 +27,7 @@ include_directories(${rclcpp_INCLUDE_DIRS}
 
 add_executable(BUG_ZAP
 	bug_zapper/src/main.cpp
+	bug_zapper/src/bug_detector.cpp
 	bug_zapper/src/bug_tracker.cpp
 	bug_zapper/src/bug_zapper.cpp
 	bug_zapper/src/camera.cpp
@@ -44,13 +48,16 @@ add_executable(BUG_SIM
     sim/main.cpp
 )
 
-ament_target_dependencies(BUG_ZAP rclcpp)
-ament_target_dependencies(BUG_SIM rclcpp)
+ament_target_dependencies(BUG_ZAP rclcpp cv_bridge sensor_msgs )
+ament_target_dependencies(BUG_SIM rclcpp cv_bridge sensor_msgs)
 
 
 target_link_libraries(BUG_SIM 
-					${WEBP_LIBRARY}
-					${ILMIMF_LIBRARY}
+					${OpenCV_LIBS}   
+					${rclcpp_LIBRARIES} 
+					${rclcpp_lifecycle_LIBRARIES}
+					)
+target_link_libraries(BUG_ZAP 
 					${OpenCV_LIBS}   
 					${rclcpp_LIBRARIES} 
 					${rclcpp_lifecycle_LIBRARIES}

@@ -1,20 +1,21 @@
-#include <bug_zapper.h>
+#include <bug_detector.h>
 
-int main(int argc, char* argv[])
+
+int main(int argc, char **argv)
 {
-    // auto pl = std::make_shared<patterns::Player>();
-    // patterns::EntityManager& em = patterns::EntityManager::GetInstance();
-    // patterns::Viewer& viewer = patterns::Viewer::GetInstance(em, patterns::FIELD_HEIGHT_MAX, patterns::FIELD_WIDTH_MAX);
-    // patterns::Controller& cntrlr = patterns::Controller::GetInstance(pl);
-    // patterns::MovementSystem& ms = patterns::MovementSystem::GetInstance(em);
-    // patterns::Menu& menu = patterns::Menu::GetInstance();
-    // patterns::Game& game = patterns::Game::GetInstance(em, menu,  cntrlr, viewer, ms, pl);
+    rclcpp::init(argc, argv);
+    rclcpp::executors::SingleThreadedExecutor executor;
+    // Create a ROS 2 node
+    auto bug_detect_node = std::make_shared<patterns::BugDetector>(1);
+    // std::shared_ptr<rclcpp_lifecycle::LifecycleNode> node = std::make_shared<SomeClass>();
+    executor.add_node(bug_detect_node->get_node_base_interface());
 
-    // game.start();
-    // while (game.isRunning()) {
-    //     game.readInput();
-    //     game.update();
-    //     game.render();
-    // }
+    rclcpp::Rate rate(10);
+
+    while(rclcpp::ok())
+        executor.spin_once();
+        rate.sleep();
+
+    rclcpp::shutdown();
     return 0;
 }
