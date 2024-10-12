@@ -25,21 +25,31 @@
             "name": "debug_bug_zapper",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/ros2/install/bug_zapper/lib/bug_zapper/BUG_SIM",
+            "program": "${workspaceFolder}/ros2/install/bug_zapper/lib/bug_zapper/BUG_ZAP",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
+            "environment": [
                 {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
+                    "name": "LD_LIBRARY_PATH",
+                    "value": "/home/james/dev/DesignPatterns/ros2/install/lib:/usr/lib:/usr/local/lib:/opt/ros/humble/lib/"
                 }
             ],
-            "preLaunchTask": "build_bug_zapper"
-        },
-    ]
-}
+            "externalConsole": false,
+                "MIMode": "gdb",
+                "setupCommands": [
+                    {
+                        "description": "Source ROS Humble",
+                        "text": "source /home/james/.devenv/humble.sh",
+                        "ignoreFailures": true
+                    },
+                    {
+                        "description": "Enable pretty-printing for gdb",
+                        "text": "-enable-pretty-printing",
+                        "ignoreFailures": true
+                    }
+                ],
+                "preLaunchTask": "build_bug_zapper"
+            },
+        ]
+    }

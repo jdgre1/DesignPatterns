@@ -62,8 +62,6 @@ target_link_libraries(BUG_ZAP
 					${rclcpp_LIBRARIES} 
 					${rclcpp_lifecycle_LIBRARIES}
 					)
-
-
 install(TARGETS
 	BUG_ZAP
 	BUG_SIM
