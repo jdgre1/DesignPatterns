@@ -21,12 +21,14 @@ class BugDetector
 {
 public:
     BugDetector(uint8_t id);
-    void AddImage(const cv::Mat& image);
+    void AddImage(cv::Mat image);
     void Tick();
-    void processImage(const cv::Mat& image);
-    void consumeFifoBuffer();
 
 private:
+    cv::Mat consumeFifoBuffer();
+    void detectBugs(cv::Mat& frame);
+    void processImage(cv::Mat& image);
+
     std::queue<cv::Mat> m_imageBuffer;
     uint8_t m_id;
 };

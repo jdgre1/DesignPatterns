@@ -20,16 +20,14 @@ void BugZapper::cameraFrameSubCb(const sensor_msgs::msg::Image::SharedPtr imgMsg
     // Convert the ROS image message to OpenCV format
     std::cout << "Received!" << std::endl;
     cv::Mat cameraFrame = cv_bridge::toCvShare(imgMsg, "bgr8")->image;
-    m_detector->AddImage(cameraFrame);
+    cv::Mat cameraFrameCopy = cameraFrame.clone();
+    m_detector->AddImage(std::move(cameraFrameCopy));
 
 }
 
 void BugZapper::Tick()
 {
     m_detector->Tick();
-    std::cout << "\nTicked the detector";
-
-    // for (std::shared_ptr<Bug> bug : m_bugs)
 }
 
 void BugZapper::SetDetector(std::shared_ptr<BugDetector> det)
