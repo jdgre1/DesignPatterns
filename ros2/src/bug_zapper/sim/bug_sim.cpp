@@ -36,13 +36,14 @@ void BugSim::DrawBug(std::shared_ptr<Bug> bug, cv::Mat &frame)
     Components::XYComponent &xyPos = bug->getPos();
     uint8_t speed = bug->getSpeed();
     xyPos.posY += speed * 100.0 / 1000.0;
+    int thickness = -1; // filled
+
     switch (bug->getType()) {
     case BugType::Alien:
     {
         cv::Point center(xyPos.posX, xyPos.posY);
         cv::uint8_t radius = bug->getSize();
         cv::Scalar lineColor(255, 0, 0);
-        int thickness = 2;
         cv::circle(frame, center, radius, lineColor, thickness);
         break;
     }
@@ -52,7 +53,6 @@ void BugSim::DrawBug(std::shared_ptr<Bug> bug, cv::Mat &frame)
         cv::Point center(xyPos.posX, xyPos.posY);
         uint8_t radius = bug->getSize();
         cv::Scalar lineColor(0, 0, 255);
-        int thickness = 2;
         cv::circle(frame, center, radius, lineColor, thickness);
         break;
     }
@@ -62,7 +62,6 @@ void BugSim::DrawBug(std::shared_ptr<Bug> bug, cv::Mat &frame)
         cv::Point center(xyPos.posX, xyPos.posY);
         uint8_t radius = bug->getSize();
         cv::Scalar lineColor(0, 255, 0);
-        int thickness = 2;
         cv::circle(frame, center, radius, lineColor, thickness);
         break;
     }
