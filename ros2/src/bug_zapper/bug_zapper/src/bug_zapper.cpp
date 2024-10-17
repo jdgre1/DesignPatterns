@@ -4,15 +4,16 @@ using namespace std::chrono_literals;
 namespace patterns
 {
 
-BugZapper::BugZapper(uint8_t id) : rclcpp_lifecycle::LifecycleNode("bug_zap_lifecycle_node"), m_id(id)
+BugZapper::BugZapper(uint8_t id)
+    : rclcpp_lifecycle::LifecycleNode("bug_zap_lifecycle_node")
+    , m_id(id)
 {
     m_startTime = this->get_clock()->now();
     m_cameraFrameSub = this->create_subscription<sensor_msgs::msg::Image>(
         "cameraFrame", 10, std::bind(&BugZapper::cameraFrameSubCb, this, std::placeholders::_1));
     // Create a 10Hz timer to call the Tick function
-    auto timerInterval = std::chrono::milliseconds(100);  // 100ms = 10Hz
-    m_tickTimer = this->create_wall_timer(
-        timerInterval, std::bind(&BugZapper::Tick, this));
+    auto timerInterval = std::chrono::milliseconds(100); // 100ms = 10Hz
+    m_tickTimer = this->create_wall_timer(timerInterval, std::bind(&BugZapper::Tick, this));
 }
 
 void BugZapper::cameraFrameSubCb(const sensor_msgs::msg::Image::SharedPtr imgMsg)
@@ -22,7 +23,6 @@ void BugZapper::cameraFrameSubCb(const sensor_msgs::msg::Image::SharedPtr imgMsg
     cv::Mat cameraFrame = cv_bridge::toCvShare(imgMsg, "bgr8")->image;
     cv::Mat cameraFrameCopy = cameraFrame.clone();
     m_detector->AddImage(std::move(cameraFrameCopy));
-
 }
 
 void BugZapper::Tick()
