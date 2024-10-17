@@ -3,7 +3,6 @@
 #include <bug_factory.h>
 #include <bug_sim.h>
 
-
 using namespace std::chrono_literals;
 namespace patterns
 {
@@ -23,17 +22,19 @@ int GenerateRandomNumberBetween(int min, int max)
 }
 
 BugSim::BugSim(double bugSpeedMin, double bugSpeedMax, uint8_t bugStrength)
-    : rclcpp_lifecycle::LifecycleNode("bug_sim_lifecycle_node"), m_bugSpeedMin(bugSpeedMin), m_bugSpeedMax(bugSpeedMax),
-      m_bugStrength(bugStrength)
+    : rclcpp_lifecycle::LifecycleNode("bug_sim_lifecycle_node")
+    , m_bugSpeedMin(bugSpeedMin)
+    , m_bugSpeedMax(bugSpeedMax)
+    , m_bugStrength(bugStrength)
 {
     m_startTime = this->get_clock()->now();
     m_timer = this->create_wall_timer(100ms, std::bind(&BugSim::simTimerCallback, this));
     m_cameraFramePub = this->create_publisher<sensor_msgs::msg::Image>("cameraFrame", 10);
 }
 
-void BugSim::DrawBug(std::shared_ptr<Bug> bug, cv::Mat &frame)
+void BugSim::DrawBug(std::shared_ptr<Bug> bug, cv::Mat& frame)
 {
-    Components::XYComponent &xyPos = bug->getPos();
+    Components::XYComponent& xyPos = bug->getPos();
     uint8_t speed = bug->getSpeed();
     xyPos.posY += speed * 100.0 / 1000.0;
     int thickness = -1; // filled
@@ -74,7 +75,7 @@ void BugSim::DrawBug(std::shared_ptr<Bug> bug, cv::Mat &frame)
     }
 }
 
-void BugSim::drawCameraFrame(cv::Mat &frame)
+void BugSim::drawCameraFrame(cv::Mat& frame)
 {
     // and its top left corner...
     int y1 = int(FIELD_LENGTH_PIXELS * 0.5);
@@ -84,8 +85,13 @@ void BugSim::drawCameraFrame(cv::Mat &frame)
     cv::Point pt2(FIELD_WIDTH_PIXELS - 2, y2);
     // These two calls...
     cv::rectangle(frame, pt1, pt2, cv::Scalar(255, 0, 255), 3);
-    cv::putText(frame, "Camera Frame", cv::Point(10, frame.rows / 2 - 10), cv::FONT_HERSHEY_DUPLEX, 1.0,
-                CV_RGB(118, 185, 0), 2);
+    cv::putText(frame,
+                "Camera Frame",
+                cv::Point(10, frame.rows / 2 - 10),
+                cv::FONT_HERSHEY_DUPLEX,
+                1.0,
+                CV_RGB(118, 185, 0),
+                2);
 
     cv::Mat cameraFrame = frame(cv::Range(pt1.y, pt2.y), cv::Range(pt1.x, pt2.x));
     std_msgs::msg::Header header;
@@ -95,7 +101,7 @@ void BugSim::drawCameraFrame(cv::Mat &frame)
     std::cout << "Published!" << std::endl;
 }
 
-void BugSim::AddRandomBug(BugType &bugtype)
+void BugSim::AddRandomBug(BugType& bugtype)
 {
     u_int8_t speed = 0;
     u_int8_t strength = 0;
@@ -140,7 +146,7 @@ void BugSim::AddRandomBug(BugType &bugtype)
     m_bugs.push_back(m_bugfactory.CreateBug(bugtype, size, speed, strength, xPos, yPos));
 }
 
-void BugSim::processBugs(cv::Mat &frame)
+void BugSim::processBugs(cv::Mat& frame)
 {
     if (m_bugs.size() < 5 && m_tickCounter++ % m_bugSpawnTickInterval == 0) {
         BugType randomBugType = static_cast<BugType>(GenerateRandomNumberBetween(0, 2));
@@ -155,7 +161,7 @@ void BugSim::processBugs(cv::Mat &frame)
         // uint8_t bugSize = bug->getSize();
         // uint8_t bugSpeed = bug->getSpeed();
         // uint8_t bugStrength = bug->getStrength();
-        Components::XYComponent &posXYBug = bug->getPos();
+        Components::XYComponent& posXYBug = bug->getPos();
         if (posXYBug.posY - bug->getSize() > frame.rows) {
             bugToDelete = counter;
             continue;

@@ -13,7 +13,7 @@ void BugDetector::Tick()
     }
 }
 
-void BugDetector::detectBugs(cv::Mat &frame)
+void BugDetector::detectBugs(cv::Mat& frame)
 {
     if (frame.empty()) {
         std::cout << "Could not open or find the image!" << std::endl;
@@ -29,14 +29,16 @@ void BugDetector::detectBugs(cv::Mat &frame)
     cv::imshow("Camera Frame Gray", inverted);
 
     // Detect circles using Hough Transform
-    cv::HoughCircles(
-        inverted, circles, cv::HOUGH_GRADIENT,
-        1,               // Accumulator resolution (same as input image)
-        1,              // Minimum distance between circles (adjust based on spacing)
-        26,              // Canny high threshold (lower if circles are missed)
-        12,              // Accumulator threshold (lower if detection is poor)
-        2, 150           // Min and max radius based on the circle size
-    );// Min and max radius of circles
+    cv::HoughCircles(inverted,
+                     circles,
+                     cv::HOUGH_GRADIENT,
+                     1,  // Accumulator resolution (same as input image)
+                     1,  // Minimum distance between circles (adjust based on spacing)
+                     26, // Canny high threshold (lower if circles are missed)
+                     12, // Accumulator threshold (lower if detection is poor)
+                     2,
+                     150 // Min and max radius based on the circle size
+    );                   // Min and max radius of circles
 
     if (circles.size())
         std::cout << "\ncircles!";
@@ -53,7 +55,7 @@ void BugDetector::detectBugs(cv::Mat &frame)
     }
 }
 
-void BugDetector::processImage(cv::Mat &image)
+void BugDetector::processImage(cv::Mat& image)
 {
     // Processing code here
     if (!image.empty()) {
