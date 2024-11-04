@@ -9,6 +9,7 @@ Project(bug_zapper)
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(cv_bridge REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
@@ -51,8 +52,8 @@ add_executable(BUG_SIM
     sim/main.cpp
 )
 
-ament_target_dependencies(BUG_ZAP rclcpp cv_bridge sensor_msgs)
-ament_target_dependencies(BUG_SIM rclcpp cv_bridge sensor_msgs tf2_ros)
+ament_target_dependencies(BUG_ZAP rclcpp cv_bridge geometry_msgs sensor_msgs tf2_ros)
+ament_target_dependencies(BUG_SIM rclcpp cv_bridge geometry_msgs sensor_msgs tf2_ros)
 
 
 target_link_libraries(BUG_SIM 

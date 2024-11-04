@@ -3,7 +3,7 @@
 namespace patterns
 {
 
-BugDetector::BugDetector(uint8_t id) : m_id(id) {}
+BugDetector::BugDetector(uint8_t id) : m_id(id) {}//, tf2_ros::Buffer &tfBuffer, m_tfBuffer(tfBuffer) {}
 
 void BugDetector::Tick()
 {
@@ -13,7 +13,21 @@ void BugDetector::Tick()
     }
 }
 
-void BugDetector::detectBugs(cv::Mat& frame)
+void BugDetector::updateTransform()
+{
+    // Get the transform for the odometry frame
+    // try {
+    //     m_transform = m_tfBuffer->lookupTransform("base_link", "camera_link", tf2::TimePointZero);
+    //     // RCLCPP_INFO(this->get_logger(), "Latest Transform from odom to base_link: [X: %.2f, Y: %.2f, Z: %.2f]",
+    //     //             m_transform.transform.translation.x, m_transform.transform.translation.y,
+    //     //             m_transform.transform.translation.z);
+    // }
+    // catch (tf2::TransformException &ex) {
+    //     // RCLCPP_WARN(this->get_logger(), "Could not transform base_link to camera_link: %s", ex.what());
+    // }
+}
+
+void BugDetector::detectBugs(cv::Mat &frame)
 {
     if (frame.empty()) {
         std::cout << "Could not open or find the image!" << std::endl;
@@ -29,9 +43,7 @@ void BugDetector::detectBugs(cv::Mat& frame)
     cv::imshow("Camera Frame Gray", inverted);
 
     // Detect circles using Hough Transform
-    cv::HoughCircles(inverted,
-                     circles,
-                     cv::HOUGH_GRADIENT,
+    cv::HoughCircles(inverted, circles, cv::HOUGH_GRADIENT,
                      1,  // Accumulator resolution (same as input image)
                      1,  // Minimum distance between circles (adjust based on spacing)
                      26, // Canny high threshold (lower if circles are missed)
@@ -55,7 +67,7 @@ void BugDetector::detectBugs(cv::Mat& frame)
     }
 }
 
-void BugDetector::processImage(cv::Mat& image)
+void BugDetector::processImage(cv::Mat &image)
 {
     // Processing code here
     if (!image.empty()) {

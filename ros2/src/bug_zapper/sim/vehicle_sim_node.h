@@ -40,6 +40,49 @@ public:
     }
 
 private:
+
+    void publishCameraTransform()
+    {
+        geometry_msgs::msg::TransformStamped transform_stamped;
+        transform_stamped.header.stamp = this->now();
+        transform_stamped.header.frame_id = "base_link";
+        transform_stamped.child_frame_id = "camera_link";
+
+        transform_stamped.transform.translation.x = 0.1;  // Example offset
+        transform_stamped.transform.translation.y = 0.0;
+        transform_stamped.transform.translation.z = 0.2;
+
+        tf2::Quaternion q;
+        q.setRPY(0, 0, 0);  // No rotation for simplicity
+        transform_stamped.transform.rotation.x = q.x();
+        transform_stamped.transform.rotation.y = q.y();
+        transform_stamped.transform.rotation.z = q.z();
+        transform_stamped.transform.rotation.w = q.w();
+
+        m_tfBroadcaster->sendTransform(transform_stamped);
+    }
+
+    void publishOdomTransform(double pos_x, double pos_y)
+    {
+        geometry_msgs::msg::TransformStamped odom_transform;
+        odom_transform.header.stamp = this->now();
+        odom_transform.header.frame_id = "odom";
+        odom_transform.child_frame_id = "base_link";
+
+        odom_transform.transform.translation.x = pos_x;
+        odom_transform.transform.translation.y = pos_y;
+        odom_transform.transform.translation.z = 0.0;  // Assuming 2D
+
+        tf2::Quaternion q;
+        q.setRPY(0, 0, 0);  // Assuming no rotation
+        odom_transform.transform.rotation.x = q.x();
+        odom_transform.transform.rotation.y = q.y();
+        odom_transform.transform.rotation.z = q.z();
+        odom_transform.transform.rotation.w = q.w();
+
+        m_tfBroadcaster->sendTransform(odom_transform);
+    }
+
     void updateAndPublish()
     {
         // Calculate time difference since last update
@@ -75,24 +118,27 @@ private:
         poseMsg.pose.position.y = posY;
         m_odomPub->publish(poseMsg);
 
-        // Broadcast transform between camera_link and base_link
-        geometry_msgs::msg::TransformStamped transformStamped;
-        transformStamped.header.stamp = currentTime;
-        transformStamped.header.frame_id = "base_link";
-        transformStamped.child_frame_id = "camera_link";
+        publishCameraTransform();
+        publishOdomTransform(posX, posY);
 
-        transformStamped.transform.translation.x = 0.1;  // Example offset, set as needed
-        transformStamped.transform.translation.y = 0.0;
-        transformStamped.transform.translation.z = 0.2;
+        // // Broadcast transform between camera_link and base_link
+        // geometry_msgs::msg::TransformStamped transformStamped;
+        // transformStamped.header.stamp = currentTime;
+        // transformStamped.header.frame_id = "base_link";
+        // transformStamped.child_frame_id = "camera_link";
 
-        tf2::Quaternion q;
-        q.setRPY(0, 0, 0);  // No rotation for simplicity
-        transformStamped.transform.rotation.x = q.x();
-        transformStamped.transform.rotation.y = q.y();
-        transformStamped.transform.rotation.z = q.z();
-        transformStamped.transform.rotation.w = q.w();
+        // transformStamped.transform.translation.x = 0.1;  // Example offset, set as needed
+        // transformStamped.transform.translation.y = 0.0;
+        // transformStamped.transform.translation.z = 0.2;
 
-        m_tfBroadcaster->sendTransform(transformStamped);
+        // tf2::Quaternion q;
+        // q.setRPY(0, 0, 0);  // No rotation for simplicity
+        // transformStamped.transform.rotation.x = q.x();
+        // transformStamped.transform.rotation.y = q.y();
+        // transformStamped.transform.rotation.z = q.z();
+        // transformStamped.transform.rotation.w = q.w();
+
+        // m_tfBroadcaster->sendTransform(transformStamped);
     }
 
     std::shared_ptr<VehicleSim> m_vehicleSim;

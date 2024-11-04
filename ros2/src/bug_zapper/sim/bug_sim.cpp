@@ -98,7 +98,7 @@ void BugSim::drawCameraFrame(cv::Mat& frame)
     header.stamp = this->get_clock()->now(); // Add timestamp
     sensor_msgs::msg::Image::SharedPtr imgMsg = cv_bridge::CvImage(header, "bgr8", cameraFrame).toImageMsg();
     m_cameraFramePub->publish(*imgMsg.get());
-    std::cout << "Published!" << std::endl;
+    // std::cout << "Published!" << std::endl;
 }
 
 void BugSim::AddRandomBug(BugType& bugtype)
