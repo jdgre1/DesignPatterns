@@ -36,20 +36,59 @@
                 }
             ],
             "externalConsole": false,
-                "MIMode": "gdb",
-                "setupCommands": [
-                    {
-                        "description": "Source ROS Humble",
-                        "text": "source /home/james/.devenv/humble.sh",
-                        "ignoreFailures": true
-                    },
-                    {
-                        "description": "Enable pretty-printing for gdb",
-                        "text": "-enable-pretty-printing",
-                        "ignoreFailures": true
-                    }
-                ],
-                "preLaunchTask": "build_bug_zapper"
-            },
-        ]
-    }
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Source ROS Humble",
+                    "text": "source /home/james/.devenv/humble.sh",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build_bug_zapper"
+        },
+        {
+            "name": "debug_bug_sim",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/ros2/install/bug_zapper/lib/bug_zapper/BUG_SIM", // Replace with actual executable name
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {
+                    "name": "LD_LIBRARY_PATH",
+                    "value": "/home/james/dev/DesignPatterns/ros2/install/lib:/usr/lib:/usr/local/lib:/opt/ros/humble/lib/"
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Source ROS Humble",
+                    "text": "source /home/james/.devenv/humble.sh",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build_bug_zapper"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Launch Both Nodes",
+            "configurations": [
+                "debug_bug_zapper",
+                "debug_bug_sim"
+            ]
+        }
+    ]
+}
