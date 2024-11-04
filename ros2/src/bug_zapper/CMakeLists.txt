@@ -12,6 +12,7 @@ find_package(cv_bridge REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 find_package(OpenCV REQUIRED)
 
@@ -45,11 +46,13 @@ add_executable(BUG_SIM
     sim/bug_factory.h
     sim/bug_sim.h
     sim/bug_sim.cpp
+    sim/vehicle_sim.h
+    sim/vehicle_sim_node.h
     sim/main.cpp
 )
 
-ament_target_dependencies(BUG_ZAP rclcpp cv_bridge sensor_msgs )
-ament_target_dependencies(BUG_SIM rclcpp cv_bridge sensor_msgs)
+ament_target_dependencies(BUG_ZAP rclcpp cv_bridge sensor_msgs)
+ament_target_dependencies(BUG_SIM rclcpp cv_bridge sensor_msgs tf2_ros)
 
 
 target_link_libraries(BUG_SIM 
@@ -68,7 +71,7 @@ install(TARGETS
   	DESTINATION lib/${PROJECT_NAME})
 
 install(
-	DIRECTORY launch
+	DIRECTORY bug_zapper/launch
 	DESTINATION share/${PROJECT_NAME}
 )
 
