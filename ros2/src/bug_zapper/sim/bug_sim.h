@@ -44,7 +44,7 @@ private:
     BugFactory m_bugfactory;
 
     int m_tickCounter = 0;
-    rclcpp::Time m_startTime;
+    uint64_t m_startTimeMs;
     rclcpp::TimerBase::SharedPtr m_timer;
     std::vector<std::shared_ptr<Bug>> m_bugs;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_cameraFramePub;

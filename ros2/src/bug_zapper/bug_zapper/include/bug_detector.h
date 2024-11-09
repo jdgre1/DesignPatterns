@@ -16,12 +16,17 @@
 
 namespace patterns
 {
+    struct ImageTimestampTuple
+    {
+        cv::Mat frame;
+        uint64_t timestampMillisecs;
+    };
 
 class BugDetector
 {
 public:
     BugDetector(uint8_t id, std::shared_ptr<tf2_ros::Buffer> tfBuffer);
-    void AddImage(cv::Mat image);
+    void AddImage(ImageTimestampTuple imgTuple);
     void Tick();
 
 private:
@@ -31,10 +36,12 @@ private:
     void updateTransform();
 
     rclcpp::Logger m_logger;
-    std::queue<cv::Mat> m_imageBuffer;
+    std::queue<ImageTimestampTuple> m_imageTupleBuffer;
     std::shared_ptr<tf2_ros::Buffer> m_tfBuffer;
     geometry_msgs::msg::TransformStamped m_transform;
     uint8_t m_id;
+    uint64_t m_startTimeMs;
+
 };
 
 } // namespace patterns

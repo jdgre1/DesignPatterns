@@ -8,7 +8,7 @@ BugZapper::BugZapper(uint8_t id)
     : rclcpp_lifecycle::LifecycleNode("bug_zap_lifecycle_node"), m_id(id),
       m_tfBuffer(std::make_shared<tf2_ros::Buffer>(this->get_clock())), m_tfListener(*m_tfBuffer)
 {
-    m_startTime = this->get_clock()->now();
+    m_startTimeMs = RCL_NS_TO_MS(this->get_clock()->now().nanoseconds());
     m_cameraFrameSub = this->create_subscription<sensor_msgs::msg::Image>(
         "cameraFrame", 10, std::bind(&BugZapper::cameraFrameSubCb, this, std::placeholders::_1));
     // Create a 10Hz timer to call the Tick function
@@ -25,10 +25,17 @@ BugZapper::BugZapper(uint8_t id)
 void BugZapper::cameraFrameSubCb(const sensor_msgs::msg::Image::SharedPtr imgMsg)
 {
     // Convert the ROS image message to OpenCV format
-    std::cout << "Received!" << std::endl;
     cv::Mat cameraFrame = cv_bridge::toCvShare(imgMsg, "bgr8")->image;
-    cv::Mat cameraFrameCopy = cameraFrame.clone();
-    m_detector->AddImage(std::move(cameraFrameCopy));
+    // cv::Mat cameraFrameCopy = cameraFrame.clone();
+    uint64_t timestampMillis =
+        static_cast<uint64_t>(imgMsg->header.stamp.sec) * 1000 + RCL_NS_TO_MS(imgMsg->header.stamp.nanosec) - m_startTimeMs;
+    std::cout << "Received with timestamp " << timestampMillis << "ms." << std::endl;
+
+    patterns::ImageTimestampTuple imageTuple;
+    imageTuple.frame = cameraFrame.clone();
+    imageTuple.timestampMillisecs = timestampMillis;
+    m_detector->AddImage(std::move(imageTuple));
+    // m_detector->AddImage(std::move(cameraFrameCopy));
 }
 
 void BugZapper::cmdVelSubCallback(const geometry_msgs::msg::Twist::SharedPtr msg)

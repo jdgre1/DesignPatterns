@@ -4,7 +4,8 @@ namespace patterns
 {
 
 BugDetector::BugDetector(uint8_t id, std::shared_ptr<tf2_ros::Buffer> tfBuffer)
-    : m_id(id), m_tfBuffer(tfBuffer), m_logger(rclcpp::get_logger("Detector_" + std::to_string(id)))
+    : m_id(id), m_tfBuffer(tfBuffer), m_logger(rclcpp::get_logger("Detector_" + std::to_string(id))),
+      m_startTimeMs(RCL_NS_TO_MS(rclcpp::Clock().now().nanoseconds()))
 {}
 
 void BugDetector::Tick()
@@ -82,18 +83,30 @@ void BugDetector::processImage(cv::Mat &image)
 
 cv::Mat BugDetector::consumeFifoBuffer()
 {
-    if (!m_imageBuffer.empty()) {
-        cv::Mat img = m_imageBuffer.front(); // Get the first image
-        m_imageBuffer.pop();                 // Remove the image from the buffer
-        return img;
+    uint64_t timeNowMs = RCL_NS_TO_MS(rclcpp::Clock().now().nanoseconds()) - m_startTimeMs;
+    if (!m_imageTupleBuffer.empty()) {
+        ImageTimestampTuple imgTuple = m_imageTupleBuffer.front(); // Get the first image
+        m_imageTupleBuffer.pop();                                  // Remove the image from the buffer
+        uint64_t timestamp = imgTuple.timestampMillisecs;
+        uint64_t timestampDiff = timeNowMs - timestamp;
+        if (timestampDiff < 2000) {
+            return imgTuple.frame;
+        }
+        else{
+            RCLCPP_WARN(m_logger, "Timestamp too old: %2ld milliseconds already passed", timestampDiff);
+            RCLCPP_WARN(m_logger, "Size of ImageBuffer: %zu images available", m_imageTupleBuffer.size());
+
+            // Take the next frame if too old
+            consumeFifoBuffer();
+        }
     }
     return cv::Mat();
 }
 
-void BugDetector::AddImage(cv::Mat frame)
+void BugDetector::AddImage(ImageTimestampTuple imgTuple)
 {
     // Process the camera frame here
-    // For example, display it
-    m_imageBuffer.push(frame);
+    // For example, display itcv::Mat frame
+    m_imageTupleBuffer.push(imgTuple);
 }
 } // namespace patterns

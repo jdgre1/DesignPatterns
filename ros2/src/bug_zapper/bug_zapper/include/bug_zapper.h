@@ -45,7 +45,7 @@ private:
     // Map map;
     // MovementSystem mv_system;
     // MotorController mc;
-    rclcpp::Time m_startTime;
+    uint64_t m_startTimeMs;
     rclcpp::TimerBase::SharedPtr m_tickTimer; // Timer for Tick function
     geometry_msgs::msg::TransformStamped m_transform;
 
