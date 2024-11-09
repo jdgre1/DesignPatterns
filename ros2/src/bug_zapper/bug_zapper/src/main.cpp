@@ -10,12 +10,12 @@ int main(int argc, char **argv)
     // Create the tf2 buffer with the node context
     auto bug_zapper_node = std::make_shared<patterns::BugZapper>(1);
 
-    // tf2_ros::Buffer& tfBuffer = bug_zapper_node->getTfBuffer();
+    std::shared_ptr<tf2_ros::Buffer> tfBuffer = bug_zapper_node->getTfBuffer();
     // tf2_ros::TransformListener tfListener(tfBuffer, bug_zapper_node);
 
     // Create the VehicleSubscriber and pass the tfBuffer
     // auto bug_detector = std::make_shared<patterns::BugDetector>(std::make_shared<rclcpp::Node>("vehicle_subscriber_node"), tfBuffer);
-    std::shared_ptr<patterns::BugDetector> bug_detector = std::make_shared<patterns::BugDetector>(1);//, tfBuffer);
+    std::shared_ptr<patterns::BugDetector> bug_detector = std::make_shared<patterns::BugDetector>(1, tfBuffer);
 
 
     bug_zapper_node->SetDetector(bug_detector);

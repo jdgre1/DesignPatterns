@@ -3,7 +3,9 @@
 namespace patterns
 {
 
-BugDetector::BugDetector(uint8_t id) : m_id(id) {}//, tf2_ros::Buffer &tfBuffer, m_tfBuffer(tfBuffer) {}
+BugDetector::BugDetector(uint8_t id, std::shared_ptr<tf2_ros::Buffer> tfBuffer)
+    : m_id(id), m_tfBuffer(tfBuffer), m_logger(rclcpp::get_logger("Detector_" + std::to_string(id)))
+{}
 
 void BugDetector::Tick()
 {
@@ -11,20 +13,21 @@ void BugDetector::Tick()
     if (!frame.empty() && frame.data) {
         processImage(frame);
     }
+    updateTransform();
 }
 
 void BugDetector::updateTransform()
 {
     // Get the transform for the odometry frame
-    // try {
-    //     m_transform = m_tfBuffer->lookupTransform("base_link", "camera_link", tf2::TimePointZero);
-    //     // RCLCPP_INFO(this->get_logger(), "Latest Transform from odom to base_link: [X: %.2f, Y: %.2f, Z: %.2f]",
-    //     //             m_transform.transform.translation.x, m_transform.transform.translation.y,
-    //     //             m_transform.transform.translation.z);
-    // }
-    // catch (tf2::TransformException &ex) {
-    //     // RCLCPP_WARN(this->get_logger(), "Could not transform base_link to camera_link: %s", ex.what());
-    // }
+    try {
+        m_transform = m_tfBuffer->lookupTransform("odom", "camera_link", tf2::TimePointZero);
+        RCLCPP_INFO(m_logger, "Latest Transform from odom to camera_link: [X: %.2f, Y: %.2f, Z: %.2f]",
+                    m_transform.transform.translation.x, m_transform.transform.translation.y,
+                    m_transform.transform.translation.z);
+    }
+    catch (tf2::TransformException &ex) {
+        RCLCPP_WARN(m_logger, "Could not transform base_link to camera_link: %s", ex.what());
+    }
 }
 
 void BugDetector::detectBugs(cv::Mat &frame)
