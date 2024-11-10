@@ -72,7 +72,9 @@ install(TARGETS
   	DESTINATION lib/${PROJECT_NAME})
 
 install(
-	DIRECTORY bug_zapper/launch
+	DIRECTORY 
+		bug_zapper/launch 
+		bug_zapper/config
 	DESTINATION share/${PROJECT_NAME}
 )
 

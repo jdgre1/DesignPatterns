@@ -1,3 +1,5 @@
+#include <opencv2/opencv.hpp>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 #include <bug_detector.h>
 
 namespace patterns
@@ -6,7 +8,25 @@ namespace patterns
 BugDetector::BugDetector(uint8_t id, std::shared_ptr<tf2_ros::Buffer> tfBuffer)
     : m_id(id), m_tfBuffer(tfBuffer), m_logger(rclcpp::get_logger("Detector_" + std::to_string(id))),
       m_startTimeMs(RCL_NS_TO_MS(rclcpp::Clock().now().nanoseconds()))
-{}
+{
+    setupCameraCalibrationConfig();
+}
+
+void BugDetector::setupCameraCalibrationConfig()
+{
+    std::string config_path =
+        ament_index_cpp::get_package_share_directory("bug_zapper") + "/config/camera_calibration.xml";
+
+    cv::FileStorage fs(config_path, cv::FileStorage::READ);
+    if (!fs.isOpened()) {
+        RCLCPP_FATAL(m_logger, "Failed to open camera calibration file.\n");
+        return;
+    }
+
+    fs["camera_matrix"] >> m_cameraCalibParams.cameraMatrix;
+    fs["distortion_coefficients"] >> m_cameraCalibParams.distCoeffs;
+    fs.release();
+}
 
 void BugDetector::Tick()
 {
@@ -44,12 +64,11 @@ void BugDetector::detectBugs(cv::Mat &frame)
     cv::bitwise_not(gray, inverted);
     // Vector to store the detected circles
     std::vector<cv::Vec3f> circles;
-    cv::imshow("Camera Frame Gray", inverted);
 
     // Detect circles using Hough Transform
     cv::HoughCircles(inverted, circles, cv::HOUGH_GRADIENT,
                      1,  // Accumulator resolution (same as input image)
-                     1,  // Minimum distance between circles (adjust based on spacing)
+                     25,  // Minimum distance between circles (adjust based on spacing)
                      26, // Canny high threshold (lower if circles are missed)
                      12, // Accumulator threshold (lower if detection is poor)
                      2,
@@ -71,10 +90,18 @@ void BugDetector::detectBugs(cv::Mat &frame)
     }
 }
 
+cv::Mat BugDetector::undistortImage(cv::Mat &image)
+{
+    cv::Mat imageUndistorted;
+    cv::undistort(image.clone(), imageUndistorted, m_cameraCalibParams.cameraMatrix, m_cameraCalibParams.distCoeffs);
+    return imageUndistorted;
+}
+
 void BugDetector::processImage(cv::Mat &image)
 {
     // Processing code here
     if (!image.empty()) {
+        image = undistortImage(image);
         detectBugs(image);
         cv::imshow("Camera Frame", image);
         cv::waitKey(100); // Wait for a short time to allow OpenCV to process the display
@@ -92,7 +119,7 @@ cv::Mat BugDetector::consumeFifoBuffer()
         if (timestampDiff < 2000) {
             return imgTuple.frame;
         }
-        else{
+        else {
             RCLCPP_WARN(m_logger, "Timestamp too old: %2ld milliseconds already passed", timestampDiff);
             RCLCPP_WARN(m_logger, "Size of ImageBuffer: %zu images available", m_imageTupleBuffer.size());
 
