@@ -75,10 +75,14 @@ void BugDetector::detectBugs(cv::Mat &frame)
                      150 // Min and max radius based on the circle size
     );                   // Min and max radius of circles
 
-    if (circles.size())
+    if (circles.size()) {
         std::cout << "\ncircles!";
+    }
     // Draw the detected circles
     for (size_t i = 0; i < circles.size(); i++) {
+        m_bugManager.push(circles[i]);
+
+        // ToDo - continue implementation below
         cv::Vec3f circle = circles[i];
         cv::Point center(cvRound(circle[0]), cvRound(circle[1]));
         int radius = cvRound(circle[2]);

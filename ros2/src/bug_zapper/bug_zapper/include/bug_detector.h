@@ -14,6 +14,8 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
+#include <bug_manager.h>
+
 namespace patterns
 {
     struct ImageTimestampTuple
@@ -43,6 +45,7 @@ private:
     void processImage(cv::Mat &image);
     void updateTransform();
 
+    BugManager m_bugManager;
     CameraCalibrationParams m_cameraCalibParams;
     rclcpp::Logger m_logger;
     std::queue<ImageTimestampTuple> m_imageTupleBuffer;

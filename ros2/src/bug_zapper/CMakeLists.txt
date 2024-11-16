@@ -30,6 +30,7 @@ include_directories(${rclcpp_INCLUDE_DIRS}
 add_executable(BUG_ZAP
 	bug_zapper/src/main.cpp
 	bug_zapper/src/bug_detector.cpp
+	bug_zapper/src/bug_manager.cpp
 	bug_zapper/src/bug_tracker.cpp
 	bug_zapper/src/bug_zapper.cpp
 	bug_zapper/src/camera.cpp
