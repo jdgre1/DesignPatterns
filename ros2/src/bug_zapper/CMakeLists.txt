@@ -19,7 +19,7 @@ find_package(OpenCV REQUIRED)
 
 # find_package(MVC_ECS_PATTERN REQUIRED)
 
-include_directories(bug_zapper/include)
+include_directories(bug_zapper/include bug_zapper/msgs)
 include_directories(sim)
 include_directories(${rclcpp_INCLUDE_DIRS}
 					${rclcpp_lifecycle_INCLUDE_DIRS} 
@@ -40,7 +40,7 @@ add_executable(BUG_ZAP
 	bug_zapper/src/position.cpp
 	bug_zapper/src/utils.cpp
 	bug_zapper/src/viewer.cpp
-	bug_zapper/include/bug_detection.h
+	bug_zapper/msgs/bug_detection.h
           
 )   
 
