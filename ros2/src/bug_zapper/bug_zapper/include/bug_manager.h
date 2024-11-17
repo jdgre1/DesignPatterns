@@ -9,6 +9,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include <bug_tracker.h>
+#include <bug_detection.h>
 
 namespace patterns
 {
@@ -17,21 +18,15 @@ class BugManager
 {
 
 public:
-    struct BugDetection
-    {
-        cv::Vec3f position;
-        uint64_t frameNumber;
-        uint64_t timestampMs;
-    };
 
     BugManager();
     // Member functions
-    void push(const BugDetection &value); // Add an element
+    void push(const BugDetection &detection); // Add an element
     void pop();                           // Remove the last element
     void erase(int index);                // Remove an element at a specific index
     int size() const;                     // Get current size
     bool empty() const;                   // Check if empty
-    // cv::Vec3f &at(int index);             // Access an element
+    cv::Vec3f at(int index);             // Access an element
     void clear(); // Clear all elements
 
 private:

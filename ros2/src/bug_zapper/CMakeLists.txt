@@ -40,6 +40,7 @@ add_executable(BUG_ZAP
 	bug_zapper/src/position.cpp
 	bug_zapper/src/utils.cpp
 	bug_zapper/src/viewer.cpp
+	bug_zapper/include/bug_detection.h
           
 )   
 

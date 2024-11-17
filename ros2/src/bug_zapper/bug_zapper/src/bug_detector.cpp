@@ -80,7 +80,7 @@ void BugDetector::detectBugs(ImageInfo &frameInfo)
     }
     // Draw the detected circles
     for (size_t i = 0; i < circles.size(); i++) {
-        BugManager::BugDetection detectedBug;
+        patterns::BugDetection detectedBug;
         detectedBug.timestampMs = m_timeNowMs;
         detectedBug.position = circles[i];
         detectedBug.frameNumber = frameInfo.frameNumber;

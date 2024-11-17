@@ -5,13 +5,13 @@ namespace patterns
 
 BugTracker::BugTracker() : m_size(0) {}
 
-void BugTracker::push(const int &value)
+void BugTracker::push(const BugTracker::TrackedBug &value)
 {
     if (!bugExists()) {
         if (m_size >= 10) {
             throw std::overflow_error("Array is full. Cannot push more elements.");
         }
-        m_array[m_size++] = value; // Add the element and increment size
+        m_trackedBugs[m_size++] = value; // Add the element and increment size
     }
 }
 
@@ -34,7 +34,7 @@ void BugTracker::erase(int index)
         throw std::out_of_range("Index is out of range.");
     }
     for (int i = index; i < m_size - 1; ++i) {
-        m_array[i] = m_array[i + 1]; // Shift elements left
+        m_trackedBugs[i] = m_trackedBugs[i + 1]; // Shift elements left
     }
     m_size--; // Decrement size
 }
@@ -49,20 +49,12 @@ bool BugTracker::empty() const
     return m_size == 0; // Check if empty
 }
 
-// cv::Vec3f &BugTracker::at(int index)
-// {
-//     if (index < 0 || index >= m_size) {
-//         throw std::out_of_range("Index is out of range.");
-//     }
-//     return m_array[index]; // Return element by reference
-// }
-
-int &BugTracker::at(int index)
+BugTracker::TrackedBug &BugTracker::at(int index)
 {
     if (index < 0 || index >= m_size) {
         throw std::out_of_range("Index is out of range.");
     }
-    return m_array[index]; // Return element by reference
+    return m_trackedBugs[index]; // Return element by reference
 }
 
 

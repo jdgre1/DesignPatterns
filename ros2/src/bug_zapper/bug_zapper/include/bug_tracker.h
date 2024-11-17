@@ -18,21 +18,29 @@ class BugTracker
 {
 
 public:
+    struct TrackedBug
+    {
+        uint64_t frameNumber;
+        uint64_t timestampDetection;
+        cv::Vec3f positionPixel;
+        std::array<cv::Point2f, 4> positionBoundaryMetres;
+        cv::Point2f velocity;
+    };
+
     BugTracker();
-    void push(const int &value); // Add an element
-    void pop();                           // Remove the last element
-    void erase(int index);                // Remove an element at a specific index
-    int size() const;                     // Get current size
-    bool empty() const;                   // Check if empty
+    void push(const BugTracker::TrackedBug &value); // Add an element
+    void pop();                         // Remove the last element
+    void erase(int index);              // Remove an element at a specific index
+    int size() const;                   // Get current size
+    bool empty() const;                 // Check if empty
     // cv::Vec3f &at(int index);             // Access an element
-    int &at(int index);
-    void clear();                         // Clear all elements
+    BugTracker::TrackedBug &at(int index);
+    void clear(); // Clear all elements
 
 private:
     bool bugExists();
-    int m_array[NUMBER_OF_BUGS]; // Fixed-size array of cv::Vec3f
-    int m_size;                           // Current size of the array
-
+    TrackedBug m_trackedBugs[NUMBER_OF_BUGS]; // Fixed-size array of cv::Vec3f
+    int m_size;                               // Current size of the array
 };
 
 } // namespace patterns
