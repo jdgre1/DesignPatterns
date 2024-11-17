@@ -46,6 +46,7 @@ private:
     // MovementSystem mv_system;
     // MotorController mc;
     uint64_t m_startTimeMs;
+    uint64_t m_timeNowMs;
     rclcpp::TimerBase::SharedPtr m_tickTimer; // Timer for Tick function
     geometry_msgs::msg::TransformStamped m_transform;
 

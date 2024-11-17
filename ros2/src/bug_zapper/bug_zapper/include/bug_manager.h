@@ -8,28 +8,33 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-const uint NUMBER_OF_BUGS = 10;
+#include <bug_tracker.h>
 
 namespace patterns
 {
 
 class BugManager
 {
+
 public:
+    struct BugDetection
+    {
+        cv::Vec3f position;
+        uint64_t timestampMs;
+    };
+
     BugManager();
-     // Member functions
-    void push(const cv::Vec3f& value); // Add an element
-    void pop(); // Remove the last element
-    void erase(int index); // Remove an element at a specific index
-    int size() const; // Get current size
-    bool empty() const; // Check if empty
-    cv::Vec3f& at(int index); // Access an element
+    // Member functions
+    void push(const BugDetection &value); // Add an element
+    void pop();                           // Remove the last element
+    void erase(int index);                // Remove an element at a specific index
+    int size() const;                     // Get current size
+    bool empty() const;                   // Check if empty
+    // cv::Vec3f &at(int index);             // Access an element
     void clear(); // Clear all elements
 
 private:
-    cv::Vec3f m_array[NUMBER_OF_BUGS]; // Fixed-size array of cv::Vec3f
-    int m_size; // Current size of the array
-
+    std::unique_ptr<BugTracker> m_bugTracker;
 };
 
 } // namespace patterns

@@ -37,7 +37,7 @@ public:
     cv::Mat undistortImage(cv::Mat &image);
     void AddImage(ImageTimestampTuple imgTuple);
     void setupCameraCalibrationConfig();
-    void Tick();
+    void Tick(uint64_t &timeNowMs);
 
 private:
     cv::Mat consumeFifoBuffer();
@@ -45,14 +45,14 @@ private:
     void processImage(cv::Mat &image);
     void updateTransform();
 
-    BugManager m_bugManager;
+    std::shared_ptr<BugManager> m_bugManager;
     CameraCalibrationParams m_cameraCalibParams;
     rclcpp::Logger m_logger;
     std::queue<ImageTimestampTuple> m_imageTupleBuffer;
     std::shared_ptr<tf2_ros::Buffer> m_tfBuffer;
     geometry_msgs::msg::TransformStamped m_transform;
     uint8_t m_id;
-    uint64_t m_startTimeMs;
+    uint64_t m_timeNowMs;
 
 };
 

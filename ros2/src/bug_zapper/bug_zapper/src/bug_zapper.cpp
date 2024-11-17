@@ -71,9 +71,10 @@ void BugZapper::updateTransform()
 }
 
 void BugZapper::Tick()
-{
+{   
+    m_timeNowMs = RCL_NS_TO_MS(rclcpp::Clock().now().nanoseconds()) - m_startTimeMs;
     updateTransform();
-    m_detector->Tick();
+    m_detector->Tick(m_timeNowMs);
 }
 
 void BugZapper::SetDetector(std::shared_ptr<BugDetector> det)

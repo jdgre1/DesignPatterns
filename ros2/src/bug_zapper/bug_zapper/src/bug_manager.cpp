@@ -3,55 +3,40 @@
 namespace patterns
 {
 
-BugManager::BugManager() : m_size(0) {}
+BugManager::BugManager() : m_bugTracker(std::unique_ptr<BugTracker>(std::make_unique<BugTracker>())) {}
 
-void BugManager::push(const cv::Vec3f &value)
-{
-    if (m_size >= 10) {
-        throw std::overflow_error("Array is full. Cannot push more elements.");
-    }
-    m_array[m_size++] = value; // Add the element and increment size
+void BugManager::push(const BugDetection &value)
+{   
+    m_bugTracker->push(33);
 }
 
 void BugManager::pop()
 {
-    if (m_size == 0) {
-        throw std::underflow_error("Array is empty. Cannot pop elements.");
-    }
-    m_size--; // Decrement size to effectively "remove" the last element
+    m_bugTracker->pop();
 }
 
 void BugManager::erase(int index)
 {
-    if (index < 0 || index >= m_size) {
-        throw std::out_of_range("Index is out of range.");
-    }
-    for (int i = index; i < m_size - 1; ++i) {
-        m_array[i] = m_array[i + 1]; // Shift elements left
-    }
-    m_size--; // Decrement size
+    m_bugTracker->erase(index);
 }
 
 int BugManager::size() const
 {
-    return m_size; // Return current size
+    return m_bugTracker->size();
 }
 
 bool BugManager::empty() const
 {
-    return m_size == 0; // Check if empty
+    return m_bugTracker->size() == 0; 
 }
 
-cv::Vec3f &BugManager::at(int index)
-{
-    if (index < 0 || index >= m_size) {
-        throw std::out_of_range("Index is out of range.");
-    }
-    return m_array[index]; // Return element by reference
-}
+// cv::Vec3f &BugManager::at(int index)
+// {
+    // return m_bugTracker->at(index); 
+// }
 
 void BugManager::clear()
 {
-    m_size = 0; // Reset size to 0
+    m_bugTracker->clear();
 }
 } // namespace patterns

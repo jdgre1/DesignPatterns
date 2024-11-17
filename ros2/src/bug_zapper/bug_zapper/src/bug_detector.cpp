@@ -1,13 +1,12 @@
-#include <opencv2/opencv.hpp>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <bug_detector.h>
+#include <opencv2/opencv.hpp>
 
 namespace patterns
 {
 
 BugDetector::BugDetector(uint8_t id, std::shared_ptr<tf2_ros::Buffer> tfBuffer)
-    : m_id(id), m_tfBuffer(tfBuffer), m_logger(rclcpp::get_logger("Detector_" + std::to_string(id))),
-      m_startTimeMs(RCL_NS_TO_MS(rclcpp::Clock().now().nanoseconds()))
+    : m_id(id), m_tfBuffer(tfBuffer), m_logger(rclcpp::get_logger("Detector_" + std::to_string(id)))
 {
     setupCameraCalibrationConfig();
 }
@@ -28,8 +27,9 @@ void BugDetector::setupCameraCalibrationConfig()
     fs.release();
 }
 
-void BugDetector::Tick()
+void BugDetector::Tick(uint64_t &timeNowMs)
 {
+    m_timeNowMs = timeNowMs;
     cv::Mat frame = consumeFifoBuffer();
     if (!frame.empty() && frame.data) {
         processImage(frame);
@@ -68,7 +68,7 @@ void BugDetector::detectBugs(cv::Mat &frame)
     // Detect circles using Hough Transform
     cv::HoughCircles(inverted, circles, cv::HOUGH_GRADIENT,
                      1,  // Accumulator resolution (same as input image)
-                     25,  // Minimum distance between circles (adjust based on spacing)
+                     25, // Minimum distance between circles (adjust based on spacing)
                      26, // Canny high threshold (lower if circles are missed)
                      12, // Accumulator threshold (lower if detection is poor)
                      2,
@@ -80,7 +80,10 @@ void BugDetector::detectBugs(cv::Mat &frame)
     }
     // Draw the detected circles
     for (size_t i = 0; i < circles.size(); i++) {
-        m_bugManager.push(circles[i]);
+        BugManager::BugDetection detectedBug;
+        detectedBug.timestampMs = m_timeNowMs;
+        detectedBug.position = circles[i];
+        m_bugManager->push(detectedBug);
 
         // ToDo - continue implementation below
         cv::Vec3f circle = circles[i];
@@ -114,12 +117,11 @@ void BugDetector::processImage(cv::Mat &image)
 
 cv::Mat BugDetector::consumeFifoBuffer()
 {
-    uint64_t timeNowMs = RCL_NS_TO_MS(rclcpp::Clock().now().nanoseconds()) - m_startTimeMs;
     if (!m_imageTupleBuffer.empty()) {
         ImageTimestampTuple imgTuple = m_imageTupleBuffer.front(); // Get the first image
         m_imageTupleBuffer.pop();                                  // Remove the image from the buffer
         uint64_t timestamp = imgTuple.timestampMillisecs;
-        uint64_t timestampDiff = timeNowMs - timestamp;
+        uint64_t timestampDiff = m_timeNowMs - timestamp;
         if (timestampDiff < 2000) {
             return imgTuple.frame;
         }
