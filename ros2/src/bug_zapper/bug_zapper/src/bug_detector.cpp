@@ -30,9 +30,9 @@ void BugDetector::setupCameraCalibrationConfig()
 void BugDetector::Tick(uint64_t &timeNowMs)
 {
     m_timeNowMs = timeNowMs;
-    cv::Mat frame = consumeFifoBuffer();
-    if (!frame.empty() && frame.data) {
-        processImage(frame);
+    ImageInfo latestFrame = consumeFifoBuffer();
+    if (!latestFrame.frame.empty() && latestFrame.frame.data) {
+        processImage(latestFrame);
     }
     updateTransform();
 }
@@ -51,16 +51,16 @@ void BugDetector::updateTransform()
     }
 }
 
-void BugDetector::detectBugs(cv::Mat &frame)
+void BugDetector::detectBugs(ImageInfo &frameInfo)
 {
-    if (frame.empty()) {
+    if (frameInfo.frame.empty()) {
         std::cout << "Could not open or find the image!" << std::endl;
         return;
     }
 
     // Convert to grayscale
     cv::Mat gray, inverted;
-    cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
+    cv::cvtColor(frameInfo.frame, gray, cv::COLOR_BGR2GRAY);
     cv::bitwise_not(gray, inverted);
     // Vector to store the detected circles
     std::vector<cv::Vec3f> circles;
@@ -83,6 +83,7 @@ void BugDetector::detectBugs(cv::Mat &frame)
         BugManager::BugDetection detectedBug;
         detectedBug.timestampMs = m_timeNowMs;
         detectedBug.position = circles[i];
+        detectedBug.frameNumber = frameInfo.frameNumber;
         m_bugManager->push(detectedBug);
 
         // ToDo - continue implementation below
@@ -91,9 +92,9 @@ void BugDetector::detectBugs(cv::Mat &frame)
         int radius = cvRound(circle[2]);
 
         // Draw circle center
-        cv::circle(frame, center, 3, cv::Scalar(0, 255, 0), -1); // Green dot
+        cv::circle(frameInfo.frame, center, 3, cv::Scalar(0, 255, 0), -1); // Green dot
         // Draw circle outline
-        cv::circle(frame, center, radius, cv::Scalar(0, 0, 255), 2); // Red circle
+        cv::circle(frameInfo.frame, center, radius, cv::Scalar(0, 0, 255), 2); // Red circle
     }
 }
 
@@ -104,42 +105,41 @@ cv::Mat BugDetector::undistortImage(cv::Mat &image)
     return imageUndistorted;
 }
 
-void BugDetector::processImage(cv::Mat &image)
+void BugDetector::processImage(ImageInfo &imageInfo)
 {
     // Processing code here
-    if (!image.empty()) {
-        image = undistortImage(image);
-        detectBugs(image);
-        cv::imshow("Camera Frame", image);
+    if (!imageInfo.frame.empty()) {
+        imageInfo.frame = undistortImage(imageInfo.frame);
+        detectBugs(imageInfo);
+        cv::imshow("Camera Frame", imageInfo.frame);
         cv::waitKey(100); // Wait for a short time to allow OpenCV to process the display
     }
 }
 
-cv::Mat BugDetector::consumeFifoBuffer()
+ImageInfo BugDetector::consumeFifoBuffer()
 {
-    if (!m_imageTupleBuffer.empty()) {
-        ImageTimestampTuple imgTuple = m_imageTupleBuffer.front(); // Get the first image
-        m_imageTupleBuffer.pop();                                  // Remove the image from the buffer
-        uint64_t timestamp = imgTuple.timestampMillisecs;
+    if (!m_imageInfoBuffer.empty()) {
+        ImageInfo imgInfo = m_imageInfoBuffer.front(); // Get the first image
+        m_imageInfoBuffer.pop();                                  // Remove the image from the buffer
+        uint64_t timestamp = imgInfo.timestampMillisecs;
         uint64_t timestampDiff = m_timeNowMs - timestamp;
         if (timestampDiff < 2000) {
-            return imgTuple.frame;
+            return imgInfo;
         }
         else {
             RCLCPP_WARN(m_logger, "Timestamp too old: %2ld milliseconds already passed", timestampDiff);
-            RCLCPP_WARN(m_logger, "Size of ImageBuffer: %zu images available", m_imageTupleBuffer.size());
+            RCLCPP_WARN(m_logger, "Size of ImageBuffer: %zu images available", m_imageInfoBuffer.size());
 
             // Take the next frame if too old
             consumeFifoBuffer();
         }
     }
-    return cv::Mat();
+    ImageInfo emptyInfo;
+    return emptyInfo;
 }
 
-void BugDetector::AddImage(ImageTimestampTuple imgTuple)
+void BugDetector::AddImage(ImageInfo imgInfo)
 {
-    // Process the camera frame here
-    // For example, display itcv::Mat frame
-    m_imageTupleBuffer.push(imgTuple);
+    m_imageInfoBuffer.push(imgInfo);
 }
 } // namespace patterns

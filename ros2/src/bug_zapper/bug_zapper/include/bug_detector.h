@@ -18,10 +18,11 @@
 
 namespace patterns
 {
-    struct ImageTimestampTuple
+    struct ImageInfo
     {
         cv::Mat frame;
         uint64_t timestampMillisecs;
+        uint64_t frameNumber;
     };
 
     struct CameraCalibrationParams
@@ -35,20 +36,20 @@ class BugDetector
 public:
     BugDetector(uint8_t id, std::shared_ptr<tf2_ros::Buffer> tfBuffer);
     cv::Mat undistortImage(cv::Mat &image);
-    void AddImage(ImageTimestampTuple imgTuple);
+    void AddImage(ImageInfo imgInfo);
     void setupCameraCalibrationConfig();
     void Tick(uint64_t &timeNowMs);
 
 private:
-    cv::Mat consumeFifoBuffer();
-    void detectBugs(cv::Mat &frame);
-    void processImage(cv::Mat &image);
+    ImageInfo consumeFifoBuffer();
+    void detectBugs(ImageInfo &frame);
+    void processImage(ImageInfo &image);
     void updateTransform();
 
     std::shared_ptr<BugManager> m_bugManager;
     CameraCalibrationParams m_cameraCalibParams;
     rclcpp::Logger m_logger;
-    std::queue<ImageTimestampTuple> m_imageTupleBuffer;
+    std::queue<ImageInfo> m_imageInfoBuffer;
     std::shared_ptr<tf2_ros::Buffer> m_tfBuffer;
     geometry_msgs::msg::TransformStamped m_transform;
     uint8_t m_id;

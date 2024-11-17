@@ -31,11 +31,11 @@ void BugZapper::cameraFrameSubCb(const sensor_msgs::msg::Image::SharedPtr imgMsg
         static_cast<uint64_t>(imgMsg->header.stamp.sec) * 1000 + RCL_NS_TO_MS(imgMsg->header.stamp.nanosec) - m_startTimeMs;
     std::cout << "Received with timestamp " << timestampMillis << "ms." << std::endl;
 
-    patterns::ImageTimestampTuple imageTuple;
-    imageTuple.frame = cameraFrame.clone();
-    imageTuple.timestampMillisecs = timestampMillis;
-    m_detector->AddImage(std::move(imageTuple));
-    // m_detector->AddImage(std::move(cameraFrameCopy));
+    patterns::ImageInfo imageinfo;
+    imageinfo.frame = cameraFrame.clone();
+    imageinfo.timestampMillisecs = timestampMillis;
+    imageinfo.frameNumber = m_frameNumber++;
+    m_detector->AddImage(std::move(imageinfo));
 }
 
 void BugZapper::cmdVelSubCallback(const geometry_msgs::msg::Twist::SharedPtr msg)

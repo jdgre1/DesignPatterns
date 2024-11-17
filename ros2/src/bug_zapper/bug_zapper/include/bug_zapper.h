@@ -57,6 +57,7 @@ private:
     std::shared_ptr<tf2_ros::Buffer> m_tfBuffer; // ToDo - change from shared-ptr
     tf2_ros::TransformListener m_tfListener;     // Listener for the transforms
     //
+    uint64_t m_frameNumber;
     size_t m_id;
 };
 

@@ -20,6 +20,7 @@ public:
     struct BugDetection
     {
         cv::Vec3f position;
+        uint64_t frameNumber;
         uint64_t timestampMs;
     };
 
