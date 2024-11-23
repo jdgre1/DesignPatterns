@@ -28,9 +28,13 @@ public:
     bool empty() const;                   // Check if empty
     cv::Vec3f at(int index);             // Access an element
     void clear(); // Clear all elements
+    void Tick(uint64_t &timeNowMs);
+    void processBugs(uint64_t &timeNowMs);
 
 private:
     std::unique_ptr<BugTracker> m_bugTracker;
+    float m_timesToFireAtBugsMs[NUMBER_OF_BUGS]; 
+
 };
 
 } // namespace patterns

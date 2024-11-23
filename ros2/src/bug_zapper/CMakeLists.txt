@@ -34,11 +34,11 @@ add_executable(BUG_ZAP
 	bug_zapper/src/bug_tracker.cpp
 	bug_zapper/src/bug_zapper.cpp
 	bug_zapper/src/camera.cpp
-	bug_zapper/src/controller.cpp
+	bug_zapper/include/config.h
 	bug_zapper/src/fire_controller.cpp
 	bug_zapper/src/map.cpp
 	bug_zapper/src/position.cpp
-	bug_zapper/src/utils.cpp
+	bug_zapper/include/utils.h
 	bug_zapper/src/viewer.cpp
 	bug_zapper/msgs/bug_detection.h
           

@@ -1,23 +1,44 @@
 #include <bug_tracker.h>
+#include <config.h>
+#include <utils.h>
 
 namespace patterns
 {
 
 BugTracker::BugTracker() : m_size(0) {}
 
-void BugTracker::push(const BugTracker::TrackedBug &value)
+void BugTracker::push(BugTracker::TrackedBug &bug)
 {
-    if (!bugExists()) {
+    if (!bugExists(bug)) {
         if (m_size >= 10) {
             throw std::overflow_error("Array is full. Cannot push more elements.");
         }
-        m_trackedBugs[m_size++] = value; // Add the element and increment size
+        m_trackedBugs[m_size++] = bug; // Add the element and increment size
     }
 }
 
-bool BugTracker::bugExists()
+bool BugTracker::bugExists(BugTracker::TrackedBug &bug)
 {
-    return true;
+    for (BugTracker::TrackedBug memberBug : m_trackedBugs) {
+        cv::Point point1(cvRound(memberBug.positionPixel[0]), cvRound(memberBug.positionPixel[1]));
+        cv::Point point2(cvRound(bug.positionPixel[0]), cvRound(bug.positionPixel[1]));
+
+        bool dispWithinRange = config::maxBugXDisplacementBetweenFrames < utils::calculateSignedYDistance(point1, point2);
+        bool xDisplacementWithinRange = abs(point1.x - point2.x) < config::maxBugXDisplacementBetweenFrames;
+        bool similarRadius = utils::areBugShapesSimilar(memberBug.positionPixel, bug.positionPixel);
+
+        if (dispWithinRange && xDisplacementWithinRange && similarRadius) {
+            memberBug.positionPixel = bug.positionPixel;
+            memberBug.velocityPixelPerSec =
+                0.5 * (memberBug.prevVelocityPixelPerSec + 1000.0 * (point2.y - point1.y) / bug.lastTimestampMs -
+                       memberBug.lastTimestampMs);
+            memberBug.prevVelocityPixelPerSec = memberBug.velocityPixelPerSec;
+            memberBug.numUpdates++;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void BugTracker::pop()
@@ -56,7 +77,6 @@ BugTracker::TrackedBug &BugTracker::at(int index)
     }
     return m_trackedBugs[index]; // Return element by reference
 }
-
 
 void BugTracker::clear()
 {

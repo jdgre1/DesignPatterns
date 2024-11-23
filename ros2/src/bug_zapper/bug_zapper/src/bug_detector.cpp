@@ -6,7 +6,8 @@ namespace patterns
 {
 
 BugDetector::BugDetector(uint8_t id, std::shared_ptr<tf2_ros::Buffer> tfBuffer)
-    : m_id(id), m_tfBuffer(tfBuffer), m_logger(rclcpp::get_logger("Detector_" + std::to_string(id)))
+    : m_id(id), m_tfBuffer(tfBuffer), m_logger(rclcpp::get_logger("Detector_" + std::to_string(id))),
+      m_bugManager(std::shared_ptr<BugManager>(std::make_shared<BugManager>()))
 {
     setupCameraCalibrationConfig();
 }
@@ -120,7 +121,7 @@ ImageInfo BugDetector::consumeFifoBuffer()
 {
     if (!m_imageInfoBuffer.empty()) {
         ImageInfo imgInfo = m_imageInfoBuffer.front(); // Get the first image
-        m_imageInfoBuffer.pop();                                  // Remove the image from the buffer
+        m_imageInfoBuffer.pop();                       // Remove the image from the buffer
         uint64_t timestamp = imgInfo.timestampMillisecs;
         uint64_t timestampDiff = m_timeNowMs - timestamp;
         if (timestampDiff < 2000) {

@@ -8,6 +8,10 @@ BugManager::BugManager() : m_bugTracker(std::unique_ptr<BugTracker>(std::make_un
 void BugManager::push(const BugDetection &detection)
 {   
     BugTracker::TrackedBug trackedBug;
+    trackedBug.frameNumber = detection.frameNumber;
+    trackedBug.lastTimestampMs = detection.timestampMs;
+    trackedBug.timestampDetectionMs = detection.timestampMs;
+    trackedBug.positionPixel = detection.position;
     m_bugTracker->push(trackedBug);
 }
 
@@ -43,4 +47,20 @@ void BugManager::clear()
 {
     m_bugTracker->clear();
 }
+
+void BugManager::Tick(uint64_t &timeNowMs)
+{
+    processBugs(timeNowMs);
+ 
+}
+
+void BugManager::processBugs(uint64_t &timeNowMs)
+{
+    for(size_t bugIdx = 0; bugIdx < m_bugTracker->size(); bugIdx++)
+    {
+        // float bugTimeToFireMs = m_bugTracker->getBugIdxTimeToFire(i);
+
+    }
+}
+
 } // namespace patterns
