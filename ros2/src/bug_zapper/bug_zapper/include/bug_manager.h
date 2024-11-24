@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+#include <rclcpp/rclcpp.hpp>
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -32,6 +34,7 @@ public:
     void processBugs(uint64_t &timeNowMs);
 
 private:
+    rclcpp::Logger m_logger;
     std::unique_ptr<BugTracker> m_bugTracker;
     float m_timesToFireAtBugsMs[NUMBER_OF_BUGS]; 
 

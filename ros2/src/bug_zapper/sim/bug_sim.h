@@ -36,10 +36,7 @@ private:
     double m_bugSpeedMin;
     double m_bugSpeedMax;
     uint8_t m_bugStrength;
-    const int m_bugSpawnTickInterval = 10;
-    const int FIELD_WIDTH_PIXELS = 800;
-    const int FIELD_LENGTH_PIXELS = 1080;
-    const int BUG_OFFSET_FROM_WIDTH_PIXELS = 50;
+
     // ~ config
     BugFactory m_bugfactory;
 

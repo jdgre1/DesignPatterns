@@ -1,5 +1,6 @@
 #include <random>
 
+#include <config.h>
 #include <bug_factory.h>
 #include <bug_sim.h>
 
@@ -67,7 +68,7 @@ void BugSim::DrawBug(std::shared_ptr<Bug> bug, cv::Mat &frame)
 
     default:
     {
-        std::cout << "\nBug type does not exist2!";
+        std::cout << "\nBug type does not exist!";
         return;
     }
     }
@@ -76,11 +77,11 @@ void BugSim::DrawBug(std::shared_ptr<Bug> bug, cv::Mat &frame)
 void BugSim::drawCameraFrame(cv::Mat &frame)
 {
     // and its top left corner...
-    int y1 = int(FIELD_LENGTH_PIXELS * 0.5);
-    int y2 = int(FIELD_LENGTH_PIXELS * 0.80);
+    int y1 = int(config::CAMERA_LENGTH_PIXELS * 0.5);
+    int y2 = int(config::CAMERA_LENGTH_PIXELS * 0.80);
     cv::Point pt1(2, y1);
     // and its bottom right corner.
-    cv::Point pt2(FIELD_WIDTH_PIXELS - 2, y2);
+    cv::Point pt2(config::CAMERA_WIDTH_PIXELS - 2, y2);
     // These two calls...
     cv::rectangle(frame, pt1, pt2, cv::Scalar(255, 0, 255), 3);
     cv::putText(frame, "Camera Frame", cv::Point(10, frame.rows / 2 - 10), cv::FONT_HERSHEY_DUPLEX, 1.0,
@@ -92,7 +93,6 @@ void BugSim::drawCameraFrame(cv::Mat &frame)
     sensor_msgs::msg::Image::SharedPtr imgMsg = cv_bridge::CvImage(header, "bgr8", cameraFrame).toImageMsg();
     m_cameraFramePub->publish(*imgMsg.get());
     uint64_t imageTimestampMs = static_cast<int64_t>(header.stamp.sec) * 1000 + RCL_NS_TO_MS(header.stamp.nanosec);
-    std::cout << "Published! with timestamp " << imageTimestampMs - m_startTimeMs << "ms.\n";
 }
 
 void BugSim::AddRandomBug(BugType &bugtype)
@@ -128,21 +128,21 @@ void BugSim::AddRandomBug(BugType &bugtype)
 
     default:
     {
-        std::cout << "\nBug type does not exist33!";
+        std::cout << "\nBug type does not exist!";
         return;
     }
     }
 
     int32_t xPos = static_cast<int32_t>(
-        GenerateRandomNumberBetween(BUG_OFFSET_FROM_WIDTH_PIXELS, FIELD_WIDTH_PIXELS - BUG_OFFSET_FROM_WIDTH_PIXELS));
-    int32_t yPos = static_cast<int32_t>(GenerateRandomNumberBetween(0, BUG_OFFSET_FROM_WIDTH_PIXELS));
+        GenerateRandomNumberBetween(config::BUG_OFFSET_FROM_WIDTH_PIXELS, config::CAMERA_WIDTH_PIXELS - config::BUG_OFFSET_FROM_WIDTH_PIXELS));
+    int32_t yPos = static_cast<int32_t>(GenerateRandomNumberBetween(0, config::BUG_OFFSET_FROM_WIDTH_PIXELS));
 
     m_bugs.push_back(m_bugfactory.CreateBug(bugtype, size, speed, strength, xPos, yPos));
 }
 
 void BugSim::processBugs(cv::Mat &frame)
 {
-    if (m_bugs.size() < 5 && m_tickCounter++ % m_bugSpawnTickInterval == 0) {
+    if (m_bugs.size() < 5 && m_tickCounter++ % config::BUG_SPAWN_TICK_INTERVAL == 0) {
         BugType randomBugType = static_cast<BugType>(GenerateRandomNumberBetween(0, 2));
         AddRandomBug(randomBugType);
         m_tickCounter = 0;
@@ -171,12 +171,12 @@ void BugSim::processBugs(cv::Mat &frame)
 
 void BugSim::simTimerCallback()
 {
-    cv::Mat field(cv::Size(FIELD_WIDTH_PIXELS, FIELD_LENGTH_PIXELS), CV_8UC3, cv::Scalar(255, 255, 255));
-    processBugs(field);
-    drawCameraFrame(field);
+    cv::Mat frame(cv::Size(config::CAMERA_WIDTH_PIXELS, config::CAMERA_LENGTH_PIXELS), CV_8UC3, cv::Scalar(255, 255, 255));
+    processBugs(frame);
+    drawCameraFrame(frame);
 
     cv::Mat resized;
-    cv::resize(field, resized, cv::Size(), 0.75, 0.75);
+    cv::resize(frame, resized, cv::Size(), 0.75, 0.75);
     cv::namedWindow("Bug-Frame");
     cv::imshow("Bug-Frame", resized);
     cv::waitKey(100);

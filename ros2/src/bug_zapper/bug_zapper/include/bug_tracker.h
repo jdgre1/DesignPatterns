@@ -40,6 +40,7 @@ public:
     // cv::Vec3f &at(int index);             // Access an element
     BugTracker::TrackedBug &at(int index);
     void clear(); // Clear all elements
+    float calculateBugIdxTimeToFire(size_t idx);
 
 private:
     bool bugExists(BugTracker::TrackedBug &bug);

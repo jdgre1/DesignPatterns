@@ -35,6 +35,7 @@ void BugDetector::Tick(uint64_t &timeNowMs)
     if (!latestFrame.frame.empty() && latestFrame.frame.data) {
         processImage(latestFrame);
     }
+    m_bugManager->Tick(timeNowMs);
     updateTransform();
 }
 

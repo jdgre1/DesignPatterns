@@ -6,10 +6,13 @@ namespace patterns
 {
 namespace config
 {
-    const float maxBugDisplacementBetweenFrames = 40.0;
-    const float maxBugXDisplacementBetweenFrames = 15.0;
+    const float MAX_BUG_DISPLACEMENT_BETWEEN_FRAMES = 40.0;
+    const float MAX_BUG_X_DISPLACEMENT_BETWEEN_FRAMES = 15.0;
 
-
+    const int BUG_SPAWN_TICK_INTERVAL = 10;
+    const int CAMERA_WIDTH_PIXELS = 800;
+    const int CAMERA_LENGTH_PIXELS = 1080;
+    const int BUG_OFFSET_FROM_WIDTH_PIXELS = 50;
 
 } // namespace utils
 } // namespace patterns

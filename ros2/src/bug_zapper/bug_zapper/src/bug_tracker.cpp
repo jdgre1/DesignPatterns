@@ -18,13 +18,18 @@ void BugTracker::push(BugTracker::TrackedBug &bug)
 }
 
 bool BugTracker::bugExists(BugTracker::TrackedBug &bug)
-{
+{   
+    size_t idx = 0;
     for (BugTracker::TrackedBug memberBug : m_trackedBugs) {
+        if (idx++ == m_size) {
+            return false;
+        }
         cv::Point point1(cvRound(memberBug.positionPixel[0]), cvRound(memberBug.positionPixel[1]));
         cv::Point point2(cvRound(bug.positionPixel[0]), cvRound(bug.positionPixel[1]));
 
-        bool dispWithinRange = config::maxBugXDisplacementBetweenFrames < utils::calculateSignedYDistance(point1, point2);
-        bool xDisplacementWithinRange = abs(point1.x - point2.x) < config::maxBugXDisplacementBetweenFrames;
+        bool dispWithinRange =
+            config::MAX_BUG_DISPLACEMENT_BETWEEN_FRAMES < utils::calculateSignedYDistance(point1, point2);
+        bool xDisplacementWithinRange = abs(point1.x - point2.x) < config::MAX_BUG_X_DISPLACEMENT_BETWEEN_FRAMES;
         bool similarRadius = utils::areBugShapesSimilar(memberBug.positionPixel, bug.positionPixel);
 
         if (dispWithinRange && xDisplacementWithinRange && similarRadius) {
@@ -78,6 +83,18 @@ BugTracker::TrackedBug &BugTracker::at(int index)
     return m_trackedBugs[index]; // Return element by reference
 }
 
+float BugTracker::calculateBugIdxTimeToFire(size_t idx)
+{
+    BugTracker::TrackedBug bug = at(idx);
+    if (bug.numUpdates > 0) {
+        float distanceLeftPixels = config::CAMERA_LENGTH_PIXELS - bug.positionPixel[1];
+        float timeToFireSecs = distanceLeftPixels / bug.velocityPixelPerSec;
+        return timeToFireSecs;
+    }
+    else {
+        return 10.0;
+    }
+}
 void BugTracker::clear()
 {
     m_size = 0; // Reset size to 0
