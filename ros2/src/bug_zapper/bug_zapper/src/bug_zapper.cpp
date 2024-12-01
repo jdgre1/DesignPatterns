@@ -29,7 +29,6 @@ void BugZapper::cameraFrameSubCb(const sensor_msgs::msg::Image::SharedPtr imgMsg
     // cv::Mat cameraFrameCopy = cameraFrame.clone();
     uint64_t timestampMillis =
         static_cast<uint64_t>(imgMsg->header.stamp.sec) * 1000 + RCL_NS_TO_MS(imgMsg->header.stamp.nanosec) - m_startTimeMs;
-    std::cout << "Received with timestamp " << timestampMillis << "ms." << std::endl;
 
     patterns::ImageInfo imageinfo;
     imageinfo.frame = cameraFrame.clone();
@@ -61,9 +60,9 @@ void BugZapper::updateTransform()
     // Get the transform for the odometry frame
     try {
         m_transform = m_tfBuffer->lookupTransform("odom", "base_link", tf2::TimePointZero);
-        RCLCPP_INFO(this->get_logger(), "Latest Transform from odom to base_link: [X: %.2f, Y: %.2f, Z: %.2f]",
-                    m_transform.transform.translation.x, m_transform.transform.translation.y,
-                    m_transform.transform.translation.z);
+        // RCLCPP_INFO(this->get_logger(), "Latest Transform from odom to base_link: [X: %.2f, Y: %.2f, Z: %.2f]",
+        //             m_transform.transform.translation.x, m_transform.transform.translation.y,
+        //             m_transform.transform.translation.z);
     }
     catch (tf2::TransformException &ex) {
         RCLCPP_WARN(this->get_logger(), "Could not transform odom to base_link: %s", ex.what());

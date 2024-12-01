@@ -35,14 +35,6 @@ bool BugManager::empty() const
     return m_bugTracker->size() == 0;
 }
 
-cv::Vec3f BugManager::at(int index)
-{
-    BugTracker::TrackedBug &trackedBug = m_bugTracker->at(index);
-    cv::Vec3f bugAtIndex;
-
-    return bugAtIndex;
-}
-
 void BugManager::clear()
 {
     m_bugTracker->clear();
@@ -50,19 +42,37 @@ void BugManager::clear()
 
 void BugManager::Tick(uint64_t &timeNowMs)
 {
+    m_bugTracker->Tick(timeNowMs);
     processBugs(timeNowMs);
 }
 
 void BugManager::processBugs(uint64_t &timeNowMs)
 {
+    std::vector<size_t> bugsToRemove;
     for (size_t bugIdx = 0; bugIdx < m_bugTracker->size(); bugIdx++) {
-        float bugTimeToFireSecs = m_bugTracker->calculateBugIdxTimeToFire(bugIdx);
-        std::cout << "\nBug " << bugIdx << " Time to fire: " << bugTimeToFireSecs << " seconds.";
-        RCLCPP_INFO_STREAM(m_logger, "\nBug " << bugIdx << " Time to fire: " << bugTimeToFireSecs << " seconds.");
-        if (bugTimeToFireSecs < 1.0) {
+        BugTracker::TrackedBug &bug = m_bugTracker->at(bugIdx);
+        if (abs(bug.velocityPixelPerSec) > 0 && abs(bug.velocityPixelPerSec < 10000)) {
+            bug.positionPixel[1] += bug.velocityPixelPerSec * (timeNowMs - bug.lastTimestampMs) / 1000.0;
+            bug.lastTimestampMs = timeNowMs;
+            bug.numUpdates++;
+            float bugTimeToFireSecs = m_bugTracker->calculateBugIdxTimeToFire(bugIdx);
             RCLCPP_INFO_STREAM(m_logger,
-                               "\nSending fire command based on a time-to-fire of " << bugTimeToFireSecs << "seconds.");
+                               "\nBug " << bugIdx << " Velocity: " << bug.velocityPixelPerSec << " pixels per sec.");
+            RCLCPP_INFO_STREAM(m_logger, "\nBug " << bugIdx << " Time to fire: " << bugTimeToFireSecs << " seconds.");
+
+            if (bugTimeToFireSecs < 1.0) {
+                RCLCPP_INFO_STREAM(m_logger, "\nSending fire command based on a time-to-fire of " << bugTimeToFireSecs
+                                                                                                  << "seconds.");
+                bugsToRemove.push_back(bugIdx);
+            }
         }
+    }
+    // Sort descending
+    std::sort(bugsToRemove.rbegin(), bugsToRemove.rend());
+
+    // Erase elements starting from the largest index
+    for (size_t idx : bugsToRemove) {
+        m_bugTracker->erase(idx);
     }
 }
 

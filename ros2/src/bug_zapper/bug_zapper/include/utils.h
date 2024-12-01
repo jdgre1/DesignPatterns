@@ -18,7 +18,7 @@ float calculateSignedYDistance(const cv::Point2f &p1, const cv::Point2f &p2) {
     return (dy >= 0) ? distance : -distance;
 }
 
-bool areBugShapesSimilar(const cv::Vec3f &shape1, const cv::Vec3f &shape2, float tolerance = 0.2f)
+bool areBugShapesSimilar(const cv::Vec3f &shape1, const cv::Vec3f &shape2, float tolerance = 10.2f)
 {
     // Extract radii (third element) from the shapes
     float radius1 = shape1[2];

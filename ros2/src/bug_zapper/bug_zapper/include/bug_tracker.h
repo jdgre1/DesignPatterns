@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+#include <rclcpp/rclcpp.hpp>
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -41,11 +43,16 @@ public:
     BugTracker::TrackedBug &at(int index);
     void clear(); // Clear all elements
     float calculateBugIdxTimeToFire(size_t idx);
+    void Tick(uint64_t &timeNowMs);
+
 
 private:
     bool bugExists(BugTracker::TrackedBug &bug);
     TrackedBug m_trackedBugs[NUMBER_OF_BUGS]; // Fixed-size array of cv::Vec3f
     int m_size;                               // Current size of the array
+    uint64_t m_timeNowMs;
+    rclcpp::Logger m_logger;
+
 };
 
 } // namespace patterns

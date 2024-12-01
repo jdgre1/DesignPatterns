@@ -44,9 +44,9 @@ void BugDetector::updateTransform()
     // Get the transform for the odometry frame
     try {
         m_transform = m_tfBuffer->lookupTransform("odom", "camera_link", tf2::TimePointZero);
-        RCLCPP_INFO(m_logger, "Latest Transform from odom to camera_link: [X: %.2f, Y: %.2f, Z: %.2f]",
-                    m_transform.transform.translation.x, m_transform.transform.translation.y,
-                    m_transform.transform.translation.z);
+        // RCLCPP_INFO(m_logger, "Latest Transform from odom to camera_link: [X: %.2f, Y: %.2f, Z: %.2f]",
+        //             m_transform.transform.translation.x, m_transform.transform.translation.y,
+        //             m_transform.transform.translation.z);
     }
     catch (tf2::TransformException &ex) {
         RCLCPP_WARN(m_logger, "Could not transform base_link to camera_link: %s", ex.what());
@@ -77,9 +77,6 @@ void BugDetector::detectBugs(ImageInfo &frameInfo)
                      150 // Min and max radius based on the circle size
     );                   // Min and max radius of circles
 
-    if (circles.size()) {
-        std::cout << "\ncircles!";
-    }
     // Draw the detected circles
     for (size_t i = 0; i < circles.size(); i++) {
         patterns::BugDetection detectedBug;

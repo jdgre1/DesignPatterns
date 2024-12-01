@@ -7,7 +7,7 @@ namespace patterns
 namespace config
 {
     const float MAX_BUG_DISPLACEMENT_BETWEEN_FRAMES = 40.0;
-    const float MAX_BUG_X_DISPLACEMENT_BETWEEN_FRAMES = 15.0;
+    const float MAX_BUG_X_DISPLACEMENT_BETWEEN_FRAMES = 100.0;
 
     const int BUG_SPAWN_TICK_INTERVAL = 10;
     const int CAMERA_WIDTH_PIXELS = 800;

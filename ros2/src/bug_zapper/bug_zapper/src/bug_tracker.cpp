@@ -5,7 +5,7 @@
 namespace patterns
 {
 
-BugTracker::BugTracker() : m_size(0) {}
+BugTracker::BugTracker() : m_size(0), m_logger(rclcpp::get_logger("BugTracker")) {}
 
 void BugTracker::push(BugTracker::TrackedBug &bug)
 {
@@ -18,12 +18,10 @@ void BugTracker::push(BugTracker::TrackedBug &bug)
 }
 
 bool BugTracker::bugExists(BugTracker::TrackedBug &bug)
-{   
+{
     size_t idx = 0;
-    for (BugTracker::TrackedBug memberBug : m_trackedBugs) {
-        if (idx++ == m_size) {
-            return false;
-        }
+    for (BugTracker::TrackedBug &memberBug : m_trackedBugs) {
+
         cv::Point point1(cvRound(memberBug.positionPixel[0]), cvRound(memberBug.positionPixel[1]));
         cv::Point point2(cvRound(bug.positionPixel[0]), cvRound(bug.positionPixel[1]));
 
@@ -32,12 +30,26 @@ bool BugTracker::bugExists(BugTracker::TrackedBug &bug)
         bool xDisplacementWithinRange = abs(point1.x - point2.x) < config::MAX_BUG_X_DISPLACEMENT_BETWEEN_FRAMES;
         bool similarRadius = utils::areBugShapesSimilar(memberBug.positionPixel, bug.positionPixel);
 
+        // RCLCPP_INFO_STREAM(m_logger, "\ndispWithinRange " << dispWithinRange
+        //                                                   << " xDisplacementWithinRange: " << xDisplacementWithinRange
+        //                                                   << " similarRadius: " << similarRadius);
+
         if (dispWithinRange && xDisplacementWithinRange && similarRadius) {
             memberBug.positionPixel = bug.positionPixel;
-            memberBug.velocityPixelPerSec =
-                0.5 * (memberBug.prevVelocityPixelPerSec + 1000.0 * (point2.y - point1.y) / bug.lastTimestampMs -
-                       memberBug.lastTimestampMs);
+
+            float velocityPixelPerSec = 1000.0 * (point2.y - point1.y) / (m_timeNowMs - memberBug.lastTimestampMs);
+
+            if (memberBug.prevVelocityPixelPerSec < 0.001) {
+                memberBug.velocityPixelPerSec = velocityPixelPerSec;
+            }
+            else { // Smoothing
+                memberBug.velocityPixelPerSec = 0.5 * (velocityPixelPerSec + memberBug.prevVelocityPixelPerSec);
+            }
+            RCLCPP_INFO_STREAM(m_logger,
+                               "\nBug " << idx++ << " velocity: " << memberBug.velocityPixelPerSec << "Pixels per second.");
+
             memberBug.prevVelocityPixelPerSec = memberBug.velocityPixelPerSec;
+            memberBug.lastTimestampMs = m_timeNowMs;
             memberBug.numUpdates++;
             return true;
         }
@@ -94,6 +106,10 @@ float BugTracker::calculateBugIdxTimeToFire(size_t idx)
     else {
         return 10.0;
     }
+}
+void BugTracker::Tick(uint64_t &timeNowMs)
+{
+    m_timeNowMs = timeNowMs;
 }
 void BugTracker::clear()
 {
