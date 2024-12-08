@@ -13,6 +13,7 @@ void BugTracker::push(BugTracker::TrackedBug &bug)
         if (m_size >= 10) {
             throw std::overflow_error("Array is full. Cannot push more elements.");
         }
+        bug.isClassified = true;
         m_trackedBugs[m_size++] = bug; // Add the element and increment size
     }
 }
@@ -22,17 +23,20 @@ bool BugTracker::bugExists(BugTracker::TrackedBug &bug)
     size_t idx = 0;
     for (BugTracker::TrackedBug &memberBug : m_trackedBugs) {
 
+        if(!memberBug.isClassified) {
+            continue;
+        }
         cv::Point point1(cvRound(memberBug.positionPixel[0]), cvRound(memberBug.positionPixel[1]));
         cv::Point point2(cvRound(bug.positionPixel[0]), cvRound(bug.positionPixel[1]));
 
         bool dispWithinRange =
-            config::MAX_BUG_DISPLACEMENT_BETWEEN_FRAMES < utils::calculateSignedYDistance(point1, point2);
+             utils::calculateSignedYDistance(point1, point2) < config::MAX_BUG_DISPLACEMENT_BETWEEN_FRAMES;
         bool xDisplacementWithinRange = abs(point1.x - point2.x) < config::MAX_BUG_X_DISPLACEMENT_BETWEEN_FRAMES;
         bool similarRadius = utils::areBugShapesSimilar(memberBug.positionPixel, bug.positionPixel);
 
-        // RCLCPP_INFO_STREAM(m_logger, "\ndispWithinRange " << dispWithinRange
-        //                                                   << " xDisplacementWithinRange: " << xDisplacementWithinRange
-        //                                                   << " similarRadius: " << similarRadius);
+        RCLCPP_INFO_STREAM(m_logger, "\ndispWithinRange " << dispWithinRange
+                                                          << " xDisplacementWithinRange: " << xDisplacementWithinRange
+                                                          << " similarRadius: " << similarRadius);
 
         if (dispWithinRange && xDisplacementWithinRange && similarRadius) {
             memberBug.positionPixel = bug.positionPixel;
@@ -73,6 +77,7 @@ void BugTracker::erase(int index)
     }
     for (int i = index; i < m_size - 1; ++i) {
         m_trackedBugs[i] = m_trackedBugs[i + 1]; // Shift elements left
+        m_trackedBugs[i + 1].isClassified = false;
     }
     m_size--; // Decrement size
 }

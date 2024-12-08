@@ -4,9 +4,9 @@
 
 // bug_zapper class representing the entire tracking-, movement-control- and mapping-system of the robot to zap bugs
 
-#include <camera.h>
 #include <iostream>
 #include <map.h>
+#include <memory.h>
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_lifecycle/lifecycle_node.hpp>
@@ -20,6 +20,8 @@
 
 #include <bug_detector.h>
 #include <bug_tracker.h>
+#include <camera.h>
+#include <fire_controller.h>
 
 namespace patterns
 {
@@ -51,6 +53,8 @@ private:
     geometry_msgs::msg::TransformStamped m_transform;
 
     std::shared_ptr<BugDetector> m_detector;
+    std::unique_ptr<FireController> m_fireController;
+    rclcpp::Publisher<bug_zapper::msg::FireCommand>::SharedPtr m_fireCommandPub;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr m_cameraFrameSub;
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr m_cmdVelSub;
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr m_odomSub;

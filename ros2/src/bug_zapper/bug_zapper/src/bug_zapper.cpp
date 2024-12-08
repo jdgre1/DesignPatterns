@@ -9,10 +9,14 @@ BugZapper::BugZapper(uint8_t id)
       m_tfBuffer(std::make_shared<tf2_ros::Buffer>(this->get_clock())), m_tfListener(*m_tfBuffer)
 {
     m_startTimeMs = RCL_NS_TO_MS(this->get_clock()->now().nanoseconds());
+
+    m_fireCommandPub = this->create_publisher<bug_zapper::msg::FireCommand>("fire_command", 10);
+
     m_cameraFrameSub = this->create_subscription<sensor_msgs::msg::Image>(
         "cameraFrame", 10, std::bind(&BugZapper::cameraFrameSubCb, this, std::placeholders::_1));
     // Create a 10Hz timer to call the Tick function
     auto timerInterval = std::chrono::milliseconds(100); // 100ms = 10Hz
+    
     m_tickTimer = this->create_wall_timer(timerInterval, std::bind(&BugZapper::Tick, this));
 
     m_cmdVelSub = this->create_subscription<geometry_msgs::msg::Twist>(
@@ -20,6 +24,9 @@ BugZapper::BugZapper(uint8_t id)
 
     m_odomSub = this->create_subscription<geometry_msgs::msg::PoseStamped>(
         "odom", 10, std::bind(&BugZapper::odomSubCallback, this, std::placeholders::_1));
+
+    // Initialize the GunController with the publisher
+    m_fireController = std::make_unique<FireController>(m_fireCommandPub, this->get_logger());
 }
 
 void BugZapper::cameraFrameSubCb(const sensor_msgs::msg::Image::SharedPtr imgMsg)

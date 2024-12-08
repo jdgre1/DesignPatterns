@@ -31,6 +31,7 @@ public:
         float prevVelocityPixelPerSec = 0.0;
         uint numUpdates = 0;
         uint64_t timeToFireAtBugMs = 10000.0;
+        bool isClassified = false;
     };
 
     BugTracker();

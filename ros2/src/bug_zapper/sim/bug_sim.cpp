@@ -144,6 +144,7 @@ void BugSim::processBugs(cv::Mat &frame)
 {
     if (m_bugs.size() < 5 && m_tickCounter++ % config::BUG_SPAWN_TICK_INTERVAL == 0) {
         BugType randomBugType = static_cast<BugType>(GenerateRandomNumberBetween(0, 2));
+        // randomBugType = BugType::BigBertha;
         AddRandomBug(randomBugType);
         m_tickCounter = 0;
         // std::cout << "Added bug!" << std::endl;
