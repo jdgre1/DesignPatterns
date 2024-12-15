@@ -1,13 +1,14 @@
+#include <opencv2/opencv.hpp>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <bug_detector.h>
-#include <opencv2/opencv.hpp>
+#include <config.h>
 
 namespace patterns
 {
 
 BugDetector::BugDetector(uint8_t id, std::shared_ptr<tf2_ros::Buffer> tfBuffer)
-    : m_id(id), m_tfBuffer(tfBuffer), m_logger(rclcpp::get_logger("Detector_" + std::to_string(id))),
-      m_bugManager(std::shared_ptr<BugManager>(std::make_shared<BugManager>()))
+    : m_id(id), m_tfBuffer(tfBuffer), m_logger(rclcpp::get_logger("Detector_" + std::to_string(id)))
+
 {
     setupCameraCalibrationConfig();
 }
@@ -28,15 +29,15 @@ void BugDetector::setupCameraCalibrationConfig()
     fs.release();
 }
 
-void BugDetector::Tick(uint64_t &timeNowMs)
+std::vector<bug_zapper_msgs::msg::BugDetection> BugDetector::Tick(uint64_t &timeNowMs)
 {
     m_timeNowMs = timeNowMs;
     ImageInfo latestFrame = consumeFifoBuffer();
     if (!latestFrame.frame.empty() && latestFrame.frame.data) {
         processImage(latestFrame);
     }
-    m_bugManager->Tick(timeNowMs);
     updateTransform();
+    return m_bugDetectionBuffer;
 }
 
 void BugDetector::updateTransform()
@@ -79,25 +80,28 @@ void BugDetector::detectBugs(ImageInfo &frameInfo)
 
     // Draw the detected circles
     for (size_t i = 0; i < circles.size(); i++) {
-        bug_zapper_msgs::msg::BugDetection detectedBug;
-        detectedBug.timestamp_ms = m_timeNowMs;
-        geometry_msgs::msg::Vector3 positionMsg;
-        positionMsg.x = circles[i][0];  // X-coordinate
-        positionMsg.y = circles[i][1];  // Y-coordinate
-        positionMsg.z = circles[i][2];  // Z-coordinate or radius
-        detectedBug.position = positionMsg;
-        detectedBug.frame_number = frameInfo.frameNumber;
-        m_bugManager->push(detectedBug);
+        if (m_bugDetectionBuffer.size() < config::MAX_BUG_DETECTIONS_PER_FRAME) {
+            
+            bug_zapper_msgs::msg::BugDetection bugDetection;
+            bugDetection.timestamp_ms = m_timeNowMs;
+            geometry_msgs::msg::Vector3 positionMsg;
+            positionMsg.x = circles[i][0]; // X-coordinate
+            positionMsg.y = circles[i][1]; // Y-coordinate
+            positionMsg.z = circles[i][2]; // Z-coordinate or radius
+            bugDetection.position = positionMsg;
+            bugDetection.frame_number = frameInfo.frameNumber;
+            m_bugDetectionBuffer.push_back(bugDetection);
+            // m_bugManager->push(bugDetection);
 
-        // ToDo - continue implementation below
-        cv::Vec3f circle = circles[i];
-        cv::Point center(cvRound(circle[0]), cvRound(circle[1]));
-        int radius = cvRound(circle[2]);
-
-        // Draw circle center
-        cv::circle(frameInfo.frame, center, 3, cv::Scalar(0, 255, 0), -1); // Green dot
-        // Draw circle outline
-        cv::circle(frameInfo.frame, center, radius, cv::Scalar(0, 0, 255), 2); // Red circle
+            // ToDo - continue implementation below
+            cv::Vec3f circle = circles[i];
+            cv::Point center(cvRound(circle[0]), cvRound(circle[1]));
+            int radius = cvRound(circle[2]);
+            // Draw circle center
+            cv::circle(frameInfo.frame, center, 3, cv::Scalar(0, 255, 0), -1); // Green dot
+            // Draw circle outline
+            cv::circle(frameInfo.frame, center, radius, cv::Scalar(0, 0, 255), 2); // Red circle
+        }
     }
 }
 

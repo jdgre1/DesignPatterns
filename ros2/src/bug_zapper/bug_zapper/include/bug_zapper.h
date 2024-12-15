@@ -18,6 +18,7 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <std_msgs/msg/header.hpp>
 
+#include <bug_manager.h>
 #include <bug_detector.h>
 #include <bug_tracker.h>
 #include <camera.h>
@@ -44,14 +45,12 @@ private:
     void cmdVelSubCallback(const geometry_msgs::msg::Twist::SharedPtr msg);
     void updateTransform();
 
-    // Map map;
-    // MovementSystem mv_system;
-    // MotorController mc;
     uint64_t m_startTimeMs;
     uint64_t m_timeNowMs;
     rclcpp::TimerBase::SharedPtr m_tickTimer; // Timer for Tick function
     geometry_msgs::msg::TransformStamped m_transform;
 
+    std::shared_ptr<BugManager> m_bugManager;
     std::shared_ptr<BugDetector> m_detector;
     std::unique_ptr<FireController> m_fireController;
     rclcpp::Publisher<bug_zapper_msgs::msg::FireCommand>::SharedPtr m_fireCommandPub;

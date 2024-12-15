@@ -6,7 +6,8 @@ namespace patterns
 
 BugZapper::BugZapper(uint8_t id)
     : rclcpp_lifecycle::LifecycleNode("bug_zap_lifecycle_node"), m_id(id),
-      m_tfBuffer(std::make_shared<tf2_ros::Buffer>(this->get_clock())), m_tfListener(*m_tfBuffer)
+      m_tfBuffer(std::make_shared<tf2_ros::Buffer>(this->get_clock())), m_tfListener(*m_tfBuffer),
+      m_bugManager(std::shared_ptr<BugManager>(std::make_shared<BugManager>()))
 {
     m_startTimeMs = RCL_NS_TO_MS(this->get_clock()->now().nanoseconds());
 
@@ -80,7 +81,8 @@ void BugZapper::Tick()
 {   
     m_timeNowMs = RCL_NS_TO_MS(rclcpp::Clock().now().nanoseconds()) - m_startTimeMs;
     updateTransform();
-    m_detector->Tick(m_timeNowMs);
+    std::vector<bug_zapper_msgs::msg::BugDetection> detectedBugs = m_detector->Tick(m_timeNowMs);
+    m_bugManager->Tick(m_timeNowMs, detectedBugs);
 }
 
 void BugZapper::SetDetector(std::shared_ptr<BugDetector> det)

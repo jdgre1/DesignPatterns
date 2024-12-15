@@ -30,7 +30,8 @@ public:
     bool empty() const;                   // Check if empty
     // cv::Vec3f at(int index);             // Access an element
     void clear(); // Clear all elements
-    void Tick(uint64_t &timeNowMs);
+    void processDetections(std::vector<bug_zapper_msgs::msg::BugDetection>& bugDetections);
+    void Tick(uint64_t &timeNowMs, std::vector<bug_zapper_msgs::msg::BugDetection>& bugDetections);
     void processBugs(uint64_t &timeNowMs);
 
 private:

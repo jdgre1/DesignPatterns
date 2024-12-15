@@ -14,7 +14,7 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
-#include <bug_manager.h>
+#include <bug_zapper_msgs/msg/bug_detection.hpp>
 
 namespace patterns
 {
@@ -38,7 +38,7 @@ public:
     cv::Mat undistortImage(cv::Mat &image);
     void AddImage(ImageInfo imgInfo);
     void setupCameraCalibrationConfig();
-    void Tick(uint64_t &timeNowMs);
+    std::vector<bug_zapper_msgs::msg::BugDetection> Tick(uint64_t &timeNowMs);
 
 private:
     ImageInfo consumeFifoBuffer();
@@ -46,14 +46,16 @@ private:
     void processImage(ImageInfo &image);
     void updateTransform();
 
-    std::shared_ptr<BugManager> m_bugManager;
     CameraCalibrationParams m_cameraCalibParams;
     rclcpp::Logger m_logger;
     std::queue<ImageInfo> m_imageInfoBuffer;
     std::shared_ptr<tf2_ros::Buffer> m_tfBuffer;
     geometry_msgs::msg::TransformStamped m_transform;
+
     uint8_t m_id;
     uint64_t m_timeNowMs;
+    std::vector<bug_zapper_msgs::msg::BugDetection> m_bugDetectionBuffer;
+    size_t m_currentIdx = 0;
 
 };
 

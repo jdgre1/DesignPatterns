@@ -42,8 +42,16 @@ void BugManager::clear()
     m_bugTracker->clear();
 }
 
-void BugManager::Tick(uint64_t &timeNowMs)
+void BugManager::processDetections(std::vector<bug_zapper_msgs::msg::BugDetection>& bugDets)
 {
+    for (bug_zapper_msgs::msg::BugDetection bugDet : bugDets) {
+        push(bugDet);
+    }
+}
+
+void BugManager::Tick(uint64_t &timeNowMs, std::vector<bug_zapper_msgs::msg::BugDetection>& bugDetections)
+{   
+    processDetections(bugDetections);
     m_bugTracker->Tick(timeNowMs);
     processBugs(timeNowMs);
 }
@@ -65,6 +73,7 @@ void BugManager::processBugs(uint64_t &timeNowMs)
             if (bugTimeToFireSecs < 1.0) {
                 RCLCPP_INFO_STREAM(m_logger, "\nSending fire command based on a time-to-fire of " << bugTimeToFireSecs
                                                                                                   << "seconds.");
+                
                 bugsToRemove.push_back(bugIdx);
             }
         }
