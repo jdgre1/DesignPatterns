@@ -54,7 +54,7 @@ private:
 
     std::shared_ptr<BugDetector> m_detector;
     std::unique_ptr<FireController> m_fireController;
-    rclcpp::Publisher<bug_zapper::msg::FireCommand>::SharedPtr m_fireCommandPub;
+    rclcpp::Publisher<bug_zapper_msgs::msg::FireCommand>::SharedPtr m_fireCommandPub;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr m_cameraFrameSub;
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr m_cmdVelSub;
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr m_odomSub;

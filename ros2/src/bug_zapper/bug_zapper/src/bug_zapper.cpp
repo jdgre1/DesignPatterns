@@ -10,7 +10,7 @@ BugZapper::BugZapper(uint8_t id)
 {
     m_startTimeMs = RCL_NS_TO_MS(this->get_clock()->now().nanoseconds());
 
-    m_fireCommandPub = this->create_publisher<bug_zapper::msg::FireCommand>("fire_command", 10);
+    m_fireCommandPub = this->create_publisher<bug_zapper_msgs::msg::FireCommand>("fire_command", 10);
 
     m_cameraFrameSub = this->create_subscription<sensor_msgs::msg::Image>(
         "cameraFrame", 10, std::bind(&BugZapper::cameraFrameSubCb, this, std::placeholders::_1));

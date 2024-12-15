@@ -15,31 +15,28 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(bug_zapper_msgs REQUIRED)
 
 find_package(OpenCV REQUIRED)
 
-# find_package(MVC_ECS_PATTERN REQUIRED)
-
-include_directories(bug_zapper/include bug_zapper/msg)
-include_directories(sim)
-include_directories(${rclcpp_INCLUDE_DIRS}
+include_directories(
+    sim
+    bug_zapper/include
+    ${rclcpp_INCLUDE_DIRS}
     ${rclcpp_lifecycle_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../mvc_ecs_pattern/include"
-    ${CMAKE_CURRENT_SOURCE_DIR}/bug_zapper/msg
-    ${CMAKE_CURRENT_BINARY_DIR} # Ensures generated headers are included
 )
 
-
-rosidl_generate_interfaces(${PROJECT_NAME}
-    bug_zapper/msg/FireCommand.msg
-    DEPENDENCIES std_msgs
-)
-
-ament_export_dependencies(rosidl_default_runtime)
+set(COMMON_LIBS     
+    ${OpenCV_LIBS}
+    ${rclcpp_LIBRARIES}
+    ${rclcpp_lifecycle_LIBRARIES}
+    )
 
 add_executable(BUG_ZAP
     bug_zapper/src/main.cpp
+    bug_zapper/include/bug_detection.h
     bug_zapper/src/bug_detector.cpp
     bug_zapper/src/bug_manager.cpp
     bug_zapper/src/bug_tracker.cpp
@@ -51,11 +48,7 @@ add_executable(BUG_ZAP
     bug_zapper/src/position.cpp
     bug_zapper/include/utils.h
     bug_zapper/src/viewer.cpp
-    bug_zapper/msg/bug_detection.h
-
 )
-add_dependencies(BUG_ZAP ${PROJECT_NAME}__rosidl_generator_cpp)
-
 
 add_executable(BUG_SIM
     sim/bug.h
@@ -67,27 +60,20 @@ add_executable(BUG_SIM
     sim/main.cpp
 )
 
-ament_target_dependencies(BUG_ZAP rclcpp cv_bridge geometry_msgs sensor_msgs rosidl_default_runtime tf2_ros)
+ament_target_dependencies(BUG_ZAP rclcpp cv_bridge geometry_msgs sensor_msgs rosidl_default_runtime tf2_ros bug_zapper_msgs)
 ament_target_dependencies(BUG_SIM rclcpp cv_bridge geometry_msgs sensor_msgs tf2_ros)
-# Add the message's type support (if required)
 
 target_include_directories(BUG_ZAP PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_c
     ${CMAKE_INSTALL_PREFIX}/include # Install directory include path
     ${CMAKE_CURRENT_SOURCE_DIR}/bug_zapper/include
 )
 
 target_link_libraries(BUG_SIM
-    ${OpenCV_LIBS}
-    ${rclcpp_LIBRARIES}
-    ${rclcpp_lifecycle_LIBRARIES}
+    ${COMMON_LIBS}
 )
 
 target_link_libraries(BUG_ZAP
-    ${OpenCV_LIBS}
-    ${rclcpp_LIBRARIES}
-    ${rclcpp_lifecycle_LIBRARIES}
+    ${COMMON_LIBS}
 )
 
 install(TARGETS
