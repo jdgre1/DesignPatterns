@@ -1,0 +1,3 @@
+geometry_msgs/Vector3 position
+uint64 frame_number
+uint64 timestamp_ms

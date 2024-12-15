@@ -10,7 +10,6 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include <bug_detection.h>
 #include <bug_tracker.h>
 #include <bug_zapper_msgs/msg/fire_command.hpp>
 

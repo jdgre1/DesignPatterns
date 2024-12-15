@@ -5,13 +5,15 @@ namespace patterns
 
 BugManager::BugManager() : m_bugTracker(std::make_unique<BugTracker>()), m_logger(rclcpp::get_logger("BugManager")) {}
 
-void BugManager::push(const BugDetection &detection)
+void BugManager::push(const bug_zapper_msgs::msg::BugDetection &detection)
 {
     BugTracker::TrackedBug trackedBug;
-    trackedBug.frameNumber = detection.frameNumber;
-    trackedBug.lastTimestampMs = detection.timestampMs;
-    trackedBug.timestampDetectionMs = detection.timestampMs;
-    trackedBug.positionPixel = detection.position;
+    trackedBug.frameNumber = detection.frame_number;
+    trackedBug.lastTimestampMs = detection.timestamp_ms;
+    trackedBug.timestampDetectionMs = detection.timestamp_ms;
+    trackedBug.positionPixel[0] = detection.position.x;  // X-coordinate
+    trackedBug.positionPixel[1] = detection.position.y;  // Y-coordinate
+    trackedBug.positionPixel[2] = detection.position.z;  // Z-coordinate
     m_bugTracker->push(trackedBug);
 }
 

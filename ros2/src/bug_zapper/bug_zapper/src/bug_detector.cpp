@@ -79,10 +79,14 @@ void BugDetector::detectBugs(ImageInfo &frameInfo)
 
     // Draw the detected circles
     for (size_t i = 0; i < circles.size(); i++) {
-        patterns::BugDetection detectedBug;
-        detectedBug.timestampMs = m_timeNowMs;
-        detectedBug.position = circles[i];
-        detectedBug.frameNumber = frameInfo.frameNumber;
+        bug_zapper_msgs::msg::BugDetection detectedBug;
+        detectedBug.timestamp_ms = m_timeNowMs;
+        geometry_msgs::msg::Vector3 positionMsg;
+        positionMsg.x = circles[i][0];  // X-coordinate
+        positionMsg.y = circles[i][1];  // Y-coordinate
+        positionMsg.z = circles[i][2];  // Z-coordinate or radius
+        detectedBug.position = positionMsg;
+        detectedBug.frame_number = frameInfo.frameNumber;
         m_bugManager->push(detectedBug);
 
         // ToDo - continue implementation below

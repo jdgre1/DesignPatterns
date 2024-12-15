@@ -7,17 +7,16 @@ endif()
 Project(bug_zapper_msgs)
 
 find_package(ament_cmake REQUIRED)
-find_package(rosidl_default_generators REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
-
-# find_package(MVC_ECS_PATTERN REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
     msg/FireCommand.msg
-    DEPENDENCIES std_msgs
+    msg/BugDetection.msg
+    DEPENDENCIES std_msgs geometry_msgs
 )
  
-
 ament_export_dependencies(rosidl_default_runtime)
 
 ament_package()

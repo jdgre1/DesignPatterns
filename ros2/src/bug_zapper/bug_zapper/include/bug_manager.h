@@ -10,8 +10,8 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
+#include <bug_zapper_msgs/msg/bug_detection.hpp>
 #include <bug_tracker.h>
-#include <bug_detection.h>
 
 namespace patterns
 {
@@ -23,7 +23,7 @@ public:
 
     BugManager();
     // Member functions
-    void push(const BugDetection &detection); // Add an element
+    void push(const bug_zapper_msgs::msg::BugDetection &detection); // Add an element
     void pop();                           // Remove the last element
     void erase(int index);                // Remove an element at a specific index
     int size() const;                     // Get current size
