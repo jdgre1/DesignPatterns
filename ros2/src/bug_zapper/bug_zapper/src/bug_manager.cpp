@@ -42,16 +42,17 @@ void BugManager::clear()
     m_bugTracker->clear();
 }
 
-void BugManager::processDetections(std::vector<bug_zapper_msgs::msg::BugDetection>& bugDets)
+void BugManager::processDetections()
 {
-    for (bug_zapper_msgs::msg::BugDetection bugDet : bugDets) {
+    for (bug_zapper_msgs::msg::BugDetection bugDet : m_detections) {
         push(bugDet);
     }
+    m_detections.clear();
 }
 
-void BugManager::Tick(uint64_t &timeNowMs, std::vector<bug_zapper_msgs::msg::BugDetection>& bugDetections)
+void BugManager::Tick(uint64_t &timeNowMs)
 {   
-    processDetections(bugDetections);
+    processDetections();
     m_bugTracker->Tick(timeNowMs);
     processBugs(timeNowMs);
 }

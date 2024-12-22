@@ -36,7 +36,6 @@ set(COMMON_LIBS
 
 add_executable(BUG_ZAP
     bug_zapper/src/main.cpp
-    bug_zapper/include/bug_detection.h
     bug_zapper/src/bug_detector.cpp
     bug_zapper/src/bug_manager.cpp
     bug_zapper/src/bug_tracker.cpp

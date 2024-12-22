@@ -38,7 +38,11 @@ public:
     cv::Mat undistortImage(cv::Mat &image);
     void AddImage(ImageInfo imgInfo);
     void setupCameraCalibrationConfig();
-    std::vector<bug_zapper_msgs::msg::BugDetection> Tick(uint64_t &timeNowMs);
+    void Tick(uint64_t &timeNowMs);
+    std::vector<bug_zapper_msgs::msg::BugDetection> getBugDetectionBuffer()
+{
+    return m_bugDetectionBuffer;
+}
 
 private:
     ImageInfo consumeFifoBuffer();

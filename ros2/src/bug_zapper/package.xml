@@ -9,6 +9,7 @@
  <maintainer email="example@email.com">jdgre1</maintainer>
  <license>GNU General Public License</license>
 
+  <depend>bug_zapper_msgs</depend>
   <depend>cv_bridge</depend>
   <depend>python3-opencv</depend>
   <depend>rclcpp</depend>
@@ -16,13 +17,6 @@
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>tf2_ros</depend>
-
-<!-- <build_depend>rosidl_typesupport_cpp</build_depend> -->
-<buildtool_depend>rosidl_default_generators</buildtool_depend>
-<exec_depend>rosidl_default_runtime</exec_depend>
-<!-- <exec_depend>rosidl_typesupport_cpp</exec_depend> -->
-<member_of_group>rosidl_interface_packages</member_of_group>
-
  <export>
    <build_type>ament_cmake</build_type>
  </export>

@@ -81,8 +81,14 @@ void BugZapper::Tick()
 {   
     m_timeNowMs = RCL_NS_TO_MS(rclcpp::Clock().now().nanoseconds()) - m_startTimeMs;
     updateTransform();
-    std::vector<bug_zapper_msgs::msg::BugDetection> detectedBugs = m_detector->Tick(m_timeNowMs);
-    m_bugManager->Tick(m_timeNowMs, detectedBugs);
+    
+    // Detector update
+    m_detector->Tick(m_timeNowMs);
+    std::vector<bug_zapper_msgs::msg::BugDetection> detectedBugs = m_detector->getBugDetectionBuffer();
+    
+    // Bug manager update
+    m_bugManager->setDetectedBugs(detectedBugs);
+    m_bugManager->Tick(m_timeNowMs);
 }
 
 void BugZapper::SetDetector(std::shared_ptr<BugDetector> det)

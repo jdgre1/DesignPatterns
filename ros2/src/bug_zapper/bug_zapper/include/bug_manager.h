@@ -30,14 +30,19 @@ public:
     bool empty() const;                   // Check if empty
     // cv::Vec3f at(int index);             // Access an element
     void clear(); // Clear all elements
-    void processDetections(std::vector<bug_zapper_msgs::msg::BugDetection>& bugDetections);
-    void Tick(uint64_t &timeNowMs, std::vector<bug_zapper_msgs::msg::BugDetection>& bugDetections);
+    void processDetections();
+    void setDetectedBugs(std::vector<bug_zapper_msgs::msg::BugDetection>& detections)
+    {
+        m_detections = detections;
+    }
+    void Tick(uint64_t &timeNowMs);
     void processBugs(uint64_t &timeNowMs);
 
 private:
     rclcpp::Logger m_logger;
     std::unique_ptr<BugTracker> m_bugTracker;
     float m_timesToFireAtBugsMs[NUMBER_OF_BUGS]; 
+    std::vector<bug_zapper_msgs::msg::BugDetection> m_detections;
 
 };
 

@@ -1,7 +1,7 @@
-#include <opencv2/opencv.hpp>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <bug_detector.h>
 #include <config.h>
+#include <opencv2/opencv.hpp>
 
 namespace patterns
 {
@@ -29,7 +29,8 @@ void BugDetector::setupCameraCalibrationConfig()
     fs.release();
 }
 
-std::vector<bug_zapper_msgs::msg::BugDetection> BugDetector::Tick(uint64_t &timeNowMs)
+
+void BugDetector::Tick(uint64_t &timeNowMs)
 {
     m_timeNowMs = timeNowMs;
     ImageInfo latestFrame = consumeFifoBuffer();
@@ -37,7 +38,6 @@ std::vector<bug_zapper_msgs::msg::BugDetection> BugDetector::Tick(uint64_t &time
         processImage(latestFrame);
     }
     updateTransform();
-    return m_bugDetectionBuffer;
 }
 
 void BugDetector::updateTransform()
@@ -81,7 +81,7 @@ void BugDetector::detectBugs(ImageInfo &frameInfo)
     // Draw the detected circles
     for (size_t i = 0; i < circles.size(); i++) {
         if (m_bugDetectionBuffer.size() < config::MAX_BUG_DETECTIONS_PER_FRAME) {
-            
+
             bug_zapper_msgs::msg::BugDetection bugDetection;
             bugDetection.timestamp_ms = m_timeNowMs;
             geometry_msgs::msg::Vector3 positionMsg;
