@@ -32,7 +32,7 @@
             "environment": [
                 {
                     "name": "LD_LIBRARY_PATH",
-                    "value": "/home/james/dev/DesignPatterns/ros2/install/lib:/usr/lib:/usr/local/lib:/opt/ros/humble/lib/"
+                    "value": "/home/james/dev/DesignPatterns/ros2/install/bug_zapper/lib/:/home/james/dev/DesignPatterns/ros2/install/bug_zapper_msgs/lib/:/usr/lib:/usr/local/lib:/opt/ros/humble/lib/"
                 }
             ],
             "externalConsole": false,

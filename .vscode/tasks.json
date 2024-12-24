@@ -7,7 +7,7 @@
             "command": [
                 "source ~/.devenv/humble.sh;",
                 "cd ${workspaceFolder}/ros2;",
-                "colcon build --packages-select bug_zapper",
+                "colcon build --packages-select bug_zapper_msgs bug_zapper",
                 "--symlink-install",
                 "--event-handlers console_cohesion+",
                 "--cmake-args -DCMAKE_BUILD_TYPE=Debug"
