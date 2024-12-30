@@ -61,7 +61,7 @@ void BugSim::DrawBug(std::shared_ptr<Bug> bug, cv::Mat &frame)
     {
         cv::Point center(xyPos.posX, xyPos.posY);
         uint8_t radius = bug->getSize();
-        cv::Scalar lineColor(0, 255, 0);
+        cv::Scalar lineColor(255, 255, 0);
         cv::circle(frame, center, radius, lineColor, thickness);
         break;
     }
@@ -77,11 +77,11 @@ void BugSim::DrawBug(std::shared_ptr<Bug> bug, cv::Mat &frame)
 void BugSim::drawCameraFrame(cv::Mat &frame)
 {
     // and its top left corner...
-    int y1 = int(config::CAMERA_LENGTH_PIXELS * 0.5);
-    int y2 = int(config::CAMERA_LENGTH_PIXELS * 0.80);
+    int y1 = int(config::FIELD_LENGTH_PIXELS * 0.5);
+    int y2 = int(config::FIELD_LENGTH_PIXELS * 0.80);
     cv::Point pt1(2, y1);
     // and its bottom right corner.
-    cv::Point pt2(config::CAMERA_WIDTH_PIXELS - 2, y2);
+    cv::Point pt2(config::FIELD_WIDTH_PIXELS - 2, y2);
     // These two calls...
     cv::rectangle(frame, pt1, pt2, cv::Scalar(255, 0, 255), 3);
     cv::putText(frame, "Camera Frame", cv::Point(10, frame.rows / 2 - 10), cv::FONT_HERSHEY_DUPLEX, 1.0,
@@ -134,7 +134,7 @@ void BugSim::AddRandomBug(BugType &bugtype)
     }
 
     int32_t xPos = static_cast<int32_t>(
-        GenerateRandomNumberBetween(config::BUG_OFFSET_FROM_WIDTH_PIXELS, config::CAMERA_WIDTH_PIXELS - config::BUG_OFFSET_FROM_WIDTH_PIXELS));
+        GenerateRandomNumberBetween(config::BUG_OFFSET_FROM_WIDTH_PIXELS, config::FIELD_WIDTH_PIXELS - config::BUG_OFFSET_FROM_WIDTH_PIXELS));
     int32_t yPos = static_cast<int32_t>(GenerateRandomNumberBetween(0, config::BUG_OFFSET_FROM_WIDTH_PIXELS));
 
     m_bugs.push_back(m_bugfactory.CreateBug(bugtype, size, speed, strength, xPos, yPos));
@@ -172,7 +172,7 @@ void BugSim::processBugs(cv::Mat &frame)
 
 void BugSim::simTimerCallback()
 {
-    cv::Mat frame(cv::Size(config::CAMERA_WIDTH_PIXELS, config::CAMERA_LENGTH_PIXELS), CV_8UC3, cv::Scalar(255, 255, 255));
+    cv::Mat frame(cv::Size(config::FIELD_WIDTH_PIXELS, config::FIELD_LENGTH_PIXELS), CV_8UC3, cv::Scalar(255, 255, 255));
     processBugs(frame);
     drawCameraFrame(frame);
 
@@ -182,6 +182,4 @@ void BugSim::simTimerCallback()
     cv::imshow("Bug-Frame", resized);
     cv::waitKey(100);
 }
-// std::unique_ptr<Bug> newBug = CreateBug(randomBugType, bugSize, speed,
-// strength)
 } // namespace patterns

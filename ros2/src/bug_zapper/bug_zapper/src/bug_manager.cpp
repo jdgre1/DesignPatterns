@@ -11,9 +11,9 @@ void BugManager::push(const bug_zapper_msgs::msg::BugDetection &detection)
     trackedBug.frameNumber = detection.frame_number;
     trackedBug.lastTimestampMs = detection.timestamp_ms;
     trackedBug.timestampDetectionMs = detection.timestamp_ms;
-    trackedBug.positionPixel[0] = detection.position.x;  // X-coordinate
-    trackedBug.positionPixel[1] = detection.position.y;  // Y-coordinate
-    trackedBug.positionPixel[2] = detection.position.z;  // Z-coordinate
+    trackedBug.positionPixel[0] = detection.position.x; // X-coordinate
+    trackedBug.positionPixel[1] = detection.position.y; // Y-coordinate
+    trackedBug.positionPixel[2] = detection.position.z; // Z-coordinate
     m_bugTracker->push(trackedBug);
 }
 
@@ -51,7 +51,7 @@ void BugManager::processDetections()
 }
 
 void BugManager::Tick(uint64_t &timeNowMs)
-{   
+{
     processDetections();
     m_bugTracker->Tick(timeNowMs);
     processBugs(timeNowMs);
@@ -67,14 +67,24 @@ void BugManager::processBugs(uint64_t &timeNowMs)
             bug.lastTimestampMs = timeNowMs;
             bug.numUpdates++;
             float bugTimeToFireSecs = m_bugTracker->calculateBugIdxTimeToFire(bugIdx);
-            RCLCPP_INFO_STREAM(m_logger,
-                               "\nBug " << bugIdx << " Velocity: " << bug.velocityPixelPerSec << " pixels per sec.");
-            RCLCPP_INFO_STREAM(m_logger, "\nBug " << bugIdx << " Time to fire: " << bugTimeToFireSecs << " seconds.");
+            // RCLCPP_INFO_STREAM(m_logger,
+            //                    " Bug " << bugIdx << " Velocity: " << bug.velocityPixelPerSec << " pixels per sec.");
+            // RCLCPP_INFO_STREAM(m_logger, " Bug " << bugIdx << " Time to fire: " << bugTimeToFireSecs << " seconds.");
 
             if (bugTimeToFireSecs < 1.0) {
-                RCLCPP_INFO_STREAM(m_logger, "\nSending fire command based on a time-to-fire of " << bugTimeToFireSecs
+                RCLCPP_ERROR_STREAM(m_logger, "\nSending fire command based on a time-to-fire of " << bugTimeToFireSecs
                                                                                                   << "seconds.");
-                
+
+                bugsToRemove.push_back(bugIdx);
+            }
+        }
+        else {
+            uint64_t timePassedMs = timeNowMs - bug.lastTimestampMs;
+           
+            if (timePassedMs > 20000 || (timePassedMs > 1000 && bug.velocityPixelPerSec < 1)) {
+                RCLCPP_INFO_STREAM(m_logger, " Bug removed"
+                                             << bugIdx << " Velocity: " << bug.velocityPixelPerSec << " pixels per sec."
+                                             << " m_timeNowMs - lastTimeStampMs: " << timePassedMs << " ms.");
                 bugsToRemove.push_back(bugIdx);
             }
         }

@@ -72,10 +72,10 @@ void BugDetector::detectBugs(ImageInfo &frameInfo)
     cv::HoughCircles(inverted, circles, cv::HOUGH_GRADIENT,
                      1,  // Accumulator resolution (same as input image)
                      25, // Minimum distance between circles (adjust based on spacing)
-                     26, // Canny high threshold (lower if circles are missed)
-                     12, // Accumulator threshold (lower if detection is poor)
+                     24, // Canny high threshold (lower if circles are missed)
+                     10, // Accumulator threshold (lower if detection is poor)
                      2,
-                     150 // Min and max radius based on the circle size
+                     250 // Min and max radius based on the circle size
     );                   // Min and max radius of circles
 
     // Draw the detected circles
@@ -100,7 +100,7 @@ void BugDetector::detectBugs(ImageInfo &frameInfo)
             // Draw circle center
             cv::circle(frameInfo.frame, center, 3, cv::Scalar(0, 255, 0), -1); // Green dot
             // Draw circle outline
-            cv::circle(frameInfo.frame, center, radius, cv::Scalar(0, 0, 255), 2); // Red circle
+            cv::circle(frameInfo.frame, center, radius, cv::Scalar(0, 0, 255), 5); // Red circle
         }
     }
 }
