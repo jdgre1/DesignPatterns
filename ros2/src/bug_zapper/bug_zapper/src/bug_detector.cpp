@@ -75,10 +75,12 @@ void BugDetector::detectBugs(ImageInfo &frameInfo)
                      24, // Canny high threshold (lower if circles are missed)
                      10, // Accumulator threshold (lower if detection is poor)
                      2,
-                     250 // Min and max radius based on the circle size
+                     50 // Min and max radius based on the circle size
     );                   // Min and max radius of circles
 
     // Draw the detected circles
+    RCLCPP_DEBUG(m_logger, "circles.size(): %zu", circles.size());
+    m_bugDetectionBuffer.clear();
     for (size_t i = 0; i < circles.size(); i++) {
         if (m_bugDetectionBuffer.size() < config::MAX_BUG_DETECTIONS_PER_FRAME) {
 
@@ -91,7 +93,6 @@ void BugDetector::detectBugs(ImageInfo &frameInfo)
             bugDetection.position = positionMsg;
             bugDetection.frame_number = frameInfo.frameNumber;
             m_bugDetectionBuffer.push_back(bugDetection);
-            // m_bugManager->push(bugDetection);
 
             // ToDo - continue implementation below
             cv::Vec3f circle = circles[i];
@@ -101,6 +102,9 @@ void BugDetector::detectBugs(ImageInfo &frameInfo)
             cv::circle(frameInfo.frame, center, 3, cv::Scalar(0, 255, 0), -1); // Green dot
             // Draw circle outline
             cv::circle(frameInfo.frame, center, radius, cv::Scalar(0, 0, 255), 5); // Red circle
+        }
+        else{
+            RCLCPP_WARN(m_logger, "Too many detectons in the buffer!! %zu", m_bugDetectionBuffer.size());
         }
     }
 }
