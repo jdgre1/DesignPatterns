@@ -89,6 +89,9 @@ void BugZapper::Tick()
     // Bug manager update
     m_bugManager->setDetectedBugs(detectedBugs);
     m_bugManager->Tick(m_timeNowMs);
+    std::vector<bug_zapper_msgs::msg::FireCommand> fireCmdMessages = m_bugManager->getFireCommands();
+    m_fireController->fire(fireCmdMessages);
+
 }
 
 void BugZapper::SetDetector(std::shared_ptr<BugDetector> det)

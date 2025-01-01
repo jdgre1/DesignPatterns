@@ -16,6 +16,7 @@
 #include <std_msgs/msg/header.hpp>
 
 #include <bug_factory.h>
+#include <bug_zapper_msgs/msg/fire_command.hpp>
 
 namespace patterns
 {
@@ -27,6 +28,7 @@ public:
 
 private:
     void simTimerCallback();
+    void fireCommandSubCallback(const bug_zapper_msgs::msg::FireCommand::SharedPtr fireCmdMsg);
     void AddRandomBug(BugType &bugtype);
     void DrawBug(std::shared_ptr<Bug> bug, cv::Mat &frame);
     void drawCameraFrame(cv::Mat &cameraImage);
@@ -45,6 +47,7 @@ private:
     rclcpp::TimerBase::SharedPtr m_timer;
     std::vector<std::shared_ptr<Bug>> m_bugs;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_cameraFramePub;
+    rclcpp::Subscription<bug_zapper_msgs::msg::FireCommand>::SharedPtr m_fireCommandSub;
 };
 
 } // namespace patterns

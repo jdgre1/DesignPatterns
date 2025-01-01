@@ -1,4 +1,5 @@
 #include <bug_manager.h>
+#include <config.h>
 
 namespace patterns
 {
@@ -60,6 +61,7 @@ void BugManager::Tick(uint64_t &timeNowMs)
 void BugManager::processBugs(uint64_t &timeNowMs)
 {
     std::vector<size_t> bugsToRemove;
+    m_fireCommandMessages.clear();
     for (size_t bugIdx = 0; bugIdx < m_bugTracker->size(); bugIdx++) {
         BugTracker::TrackedBug &bug = m_bugTracker->at(bugIdx);
         if (abs(bug.velocityPixelPerSec) > 0 && abs(bug.velocityPixelPerSec < 10000)) {
@@ -67,9 +69,25 @@ void BugManager::processBugs(uint64_t &timeNowMs)
             bug.lastTimestampMs = timeNowMs;
             bug.numUpdates++;
             float bugTimeToFireSecs = m_bugTracker->calculateBugIdxTimeToFire(bugIdx);
-            // RCLCPP_INFO_STREAM(m_logger,
-            //                    " Bug " << bugIdx << " Velocity: " << bug.velocityPixelPerSec << " pixels per sec.");
-            // RCLCPP_INFO_STREAM(m_logger, " Bug " << bugIdx << " Time to fire: " << bugTimeToFireSecs << " seconds.");
+            float minY = bug.positionPixel[1] - bug.positionPixel[2];
+            float maxY = bug.positionPixel[1] + bug.positionPixel[2];
+            float totalBugLength = maxY - minY;
+            float firingDurationMs = 1000 * totalBugLength / bug.velocityPixelPerSec;
+
+            bug_zapper_msgs::msg::FireCommand fireCmdMsg;
+            fireCmdMsg.opening_time = timeNowMs + bugTimeToFireSecs * 1000;
+            fireCmdMsg.closing_time = fireCmdMsg.opening_time + firingDurationMs;
+
+            float minX = bug.positionPixel[1] - bug.positionPixel[2];
+            float maxX = bug.positionPixel[1] + bug.positionPixel[2];
+
+            float ratioCameraFrameStart = minX / config::FIELD_WIDTH_PIXELS;
+            float ratioCameraFrameEnd = maxX / config::FIELD_WIDTH_PIXELS;
+
+            // ToDo: etemine which guns to fire based on span of bug across frame:
+
+            m_fireCommandMessages.push_back(fireCmdMsg);
+
 
             if (bugTimeToFireSecs < 1.0) {
                 RCLCPP_ERROR_STREAM(m_logger, "\nSending fire command based on a time-to-fire of " << bugTimeToFireSecs

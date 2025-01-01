@@ -60,7 +60,7 @@ add_executable(BUG_SIM
 )
 
 ament_target_dependencies(BUG_ZAP rclcpp cv_bridge geometry_msgs sensor_msgs rosidl_default_runtime tf2_ros bug_zapper_msgs)
-ament_target_dependencies(BUG_SIM rclcpp cv_bridge geometry_msgs sensor_msgs tf2_ros)
+ament_target_dependencies(BUG_SIM rclcpp cv_bridge geometry_msgs sensor_msgs tf2_ros bug_zapper_msgs)
 
 target_include_directories(BUG_ZAP PRIVATE
     ${CMAKE_INSTALL_PREFIX}/include # Install directory include path

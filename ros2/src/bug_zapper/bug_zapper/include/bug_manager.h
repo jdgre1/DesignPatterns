@@ -10,8 +10,9 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include <bug_zapper_msgs/msg/bug_detection.hpp>
 #include <bug_tracker.h>
+#include <bug_zapper_msgs/msg/bug_detection.hpp>
+#include <bug_zapper_msgs/msg/fire_command.hpp>
 
 namespace patterns
 {
@@ -20,18 +21,21 @@ class BugManager
 {
 
 public:
-
     BugManager();
     // Member functions
     void push(const bug_zapper_msgs::msg::BugDetection &detection); // Add an element
-    void pop();                           // Remove the last element
-    void erase(int index);                // Remove an element at a specific index
-    int size() const;                     // Get current size
-    bool empty() const;                   // Check if empty
+    void pop();                                                     // Remove the last element
+    void erase(int index);                                          // Remove an element at a specific index
+    int size() const;                                               // Get current size
+    bool empty() const;                                             // Check if empty
     // cv::Vec3f at(int index);             // Access an element
     void clear(); // Clear all elements
     void processDetections();
-    void setDetectedBugs(std::vector<bug_zapper_msgs::msg::BugDetection>& detections)
+    std::vector<bug_zapper_msgs::msg::FireCommand> getFireCommands()
+    {
+        return m_fireCommandMessages;
+    }
+    void setDetectedBugs(std::vector<bug_zapper_msgs::msg::BugDetection> &detections)
     {
         m_detections = detections;
     }
@@ -41,9 +45,9 @@ public:
 private:
     rclcpp::Logger m_logger;
     std::unique_ptr<BugTracker> m_bugTracker;
-    float m_timesToFireAtBugsMs[NUMBER_OF_BUGS]; 
+    float m_timesToFireAtBugsMs[NUMBER_OF_BUGS];
     std::vector<bug_zapper_msgs::msg::BugDetection> m_detections;
-
+    std::vector<bug_zapper_msgs::msg::FireCommand> m_fireCommandMessages;
 };
 
 } // namespace patterns

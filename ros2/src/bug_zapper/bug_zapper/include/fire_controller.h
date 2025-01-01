@@ -23,7 +23,7 @@ public:
     explicit FireController(rclcpp::Publisher<bug_zapper_msgs::msg::FireCommand>::SharedPtr fireCommandPub, rclcpp::Logger logger);
 
     // Member functions
-    void fire(uint64_t &timeStart, uint64_t &timeEnd); // Add an element
+    void fire(std::vector<bug_zapper_msgs::msg::FireCommand>& fireCmdMsgs); // Add an element
 
 private:
     rclcpp::Logger m_logger;

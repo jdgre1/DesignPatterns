@@ -7,11 +7,11 @@ FireController::FireController(rclcpp::Publisher<bug_zapper_msgs::msg::FireComma
     : m_fireCommandPub(fireCommandPub), m_logger(logger)
 {}
 
-void FireController::fire(uint64_t &timeStart, uint64_t &timeEnd)
+void FireController::fire(std::vector<bug_zapper_msgs::msg::FireCommand>& fireCmdMsgs)
 {
-    bug_zapper_msgs::msg::FireCommand fireCmdMsg;
-    fireCmdMsg.opening_time = timeStart;
-    fireCmdMsg.closing_time = timeEnd;
+    for (bug_zapper_msgs::msg::FireCommand fireCmdMsg : fireCmdMsgs) {
+        m_fireCommandPub->publish(fireCmdMsg);
+    }
 }
 
 } // namespace patterns

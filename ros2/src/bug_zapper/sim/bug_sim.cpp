@@ -29,6 +29,8 @@ BugSim::BugSim(double bugSpeedMin, double bugSpeedMax, uint8_t bugStrength)
     m_startTimeMs = RCL_NS_TO_MS(this->get_clock()->now().nanoseconds());
     m_timer = this->create_wall_timer(100ms, std::bind(&BugSim::simTimerCallback, this));
     m_cameraFramePub = this->create_publisher<sensor_msgs::msg::Image>("cameraFrame", 10);
+    m_fireCommandSub = this->create_subscription<bug_zapper_msgs::msg::FireCommand>(
+        "fire_command", 10, std::bind(&BugSim::fireCommandSubCallback, this, std::placeholders::_1));
 }
 
 void BugSim::DrawBug(std::shared_ptr<Bug> bug, cv::Mat &frame)
@@ -168,6 +170,12 @@ void BugSim::processBugs(cv::Mat &frame)
         m_bugs.erase(m_bugs.begin() + bugToDelete);
         // std::cout << "Deleted bug!";
     }
+}
+
+
+void BugSim::fireCommandSubCallback(const bug_zapper_msgs::msg::FireCommand::SharedPtr fireCmdMsg)
+{
+
 }
 
 void BugSim::simTimerCallback()
