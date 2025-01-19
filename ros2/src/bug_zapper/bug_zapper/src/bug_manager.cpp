@@ -62,46 +62,65 @@ void BugManager::processBugs(uint64_t &timeNowMs)
 {
     std::vector<size_t> bugsToRemove;
     m_fireCommandMessages.clear();
+
     for (size_t bugIdx = 0; bugIdx < m_bugTracker->size(); bugIdx++) {
         BugTracker::TrackedBug &bug = m_bugTracker->at(bugIdx);
         if (abs(bug.velocityPixelPerSec) > 0 && abs(bug.velocityPixelPerSec < 10000)) {
             bug.positionPixel[1] += bug.velocityPixelPerSec * (timeNowMs - bug.lastTimestampMs) / 1000.0;
             bug.lastTimestampMs = timeNowMs;
             bug.numUpdates++;
+
+            // Determine fire-command message timing:
             float bugTimeToFireSecs = m_bugTracker->calculateBugIdxTimeToFire(bugIdx);
-            float minY = bug.positionPixel[1] - bug.positionPixel[2];
-            float maxY = bug.positionPixel[1] + bug.positionPixel[2];
-            float totalBugLength = maxY - minY;
-            float firingDurationMs = 1000 * totalBugLength / bug.velocityPixelPerSec;
-
-            bug_zapper_msgs::msg::FireCommand fireCmdMsg;
-            fireCmdMsg.opening_time = timeNowMs + bugTimeToFireSecs * 1000;
-            fireCmdMsg.closing_time = fireCmdMsg.opening_time + firingDurationMs;
-
-            float minX = bug.positionPixel[1] - bug.positionPixel[2];
-            float maxX = bug.positionPixel[1] + bug.positionPixel[2];
-
-            float ratioCameraFrameStart = minX / config::FIELD_WIDTH_PIXELS;
-            float ratioCameraFrameEnd = maxX / config::FIELD_WIDTH_PIXELS;
-
-            // ToDo: etemine which guns to fire based on span of bug across frame:
-
-            m_fireCommandMessages.push_back(fireCmdMsg);
-
 
             if (bugTimeToFireSecs < 1.0) {
-                RCLCPP_ERROR_STREAM(m_logger, "\nSending fire command based on a time-to-fire of " << bugTimeToFireSecs
-                                                                                                  << "seconds.");
+                float minY = bug.positionPixel[1] - bug.positionPixel[2];
+                float maxY = bug.positionPixel[1] + bug.positionPixel[2];
+                float totalBugLength = maxY - minY;
+                float firingDurationMs = 1000 * totalBugLength / bug.velocityPixelPerSec;
 
+                bug_zapper_msgs::msg::FireCommand fireCmdMsg;
+                fireCmdMsg.opening_time = timeNowMs + bugTimeToFireSecs * 1000;
+                fireCmdMsg.closing_time = fireCmdMsg.opening_time + firingDurationMs;
+
+                // Determine fire-command message guns:
+                float minX = bug.positionPixel[1] - bug.positionPixel[2];
+                float maxX = bug.positionPixel[1] + bug.positionPixel[2];
+
+                float ratioCameraFrameStart = minX / config::FIELD_WIDTH_PIXELS;
+                float ratioCameraFrameEnd = maxX / config::FIELD_WIDTH_PIXELS;
+
+                uint8_t gunMin =
+                    static_cast<uint8_t>(std::max(0, static_cast<int>(ratioCameraFrameStart * config::NUM_GUNS)));
+                uint8_t gunMax = static_cast<uint8_t>(
+                    std::min(config::NUM_GUNS - 1, static_cast<int>(ratioCameraFrameEnd * config::NUM_GUNS)));
+
+                // Ensure all guns between gunMin and gunMax are included
+                std::vector<uint8_t> gunsToFire;
+                for (uint8_t gun = gunMin; gun <= gunMax; ++gun) {
+                    gunsToFire.push_back(gun);
+                }
+
+                // Add guns to the fire command message
+                fireCmdMsg.gun_id = gunsToFire;
+
+                // Push the fire command message to the vector
+                m_fireCommandMessages.push_back(fireCmdMsg);
+
+                RCLCPP_ERROR_STREAM(m_logger, "\nSending fire command based on a time-to-fire of " << bugTimeToFireSecs
+                                                                                                   << "seconds.");
+                for (uint8_t gun = gunMin; gun <= gunMax; ++gun) {
+                    RCLCPP_ERROR_STREAM(m_logger, "\nFiring gun; " << static_cast<int>(gun));
+                }
                 bugsToRemove.push_back(bugIdx);
             }
         }
         else {
             uint64_t timePassedMs = timeNowMs - bug.lastTimestampMs;
-           
+
             if (timePassedMs > 20000 || (timePassedMs > 1000 && bug.velocityPixelPerSec < 1)) {
-                RCLCPP_INFO_STREAM(m_logger, " Bug removed"
-                                             << bugIdx << " Velocity: " << bug.velocityPixelPerSec << " pixels per sec."
+                RCLCPP_INFO_STREAM(
+                    m_logger, " Bug removed" << bugIdx << " Velocity: " << bug.velocityPixelPerSec << " pixels per sec."
                                              << " m_timeNowMs - lastTimeStampMs: " << timePassedMs << " ms.");
                 bugsToRemove.push_back(bugIdx);
             }
