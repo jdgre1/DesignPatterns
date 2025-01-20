@@ -15,6 +15,8 @@ namespace config
     const int BUG_OFFSET_FROM_WIDTH_PIXELS = 50;
     const int MAX_BUG_DETECTIONS_PER_FRAME = 10;
     const uint8_t NUM_GUNS = 10;
+    const int GUN_EXPLOSION_RADIUS = 40;
+
     
 
 } // namespace utils

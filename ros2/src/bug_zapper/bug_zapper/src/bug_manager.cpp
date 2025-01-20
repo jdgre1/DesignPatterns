@@ -84,8 +84,8 @@ void BugManager::processBugs(uint64_t &timeNowMs)
                 fireCmdMsg.closing_time = fireCmdMsg.opening_time + firingDurationMs;
 
                 // Determine fire-command message guns:
-                float minX = bug.positionPixel[1] - bug.positionPixel[2];
-                float maxX = bug.positionPixel[1] + bug.positionPixel[2];
+                float minX = bug.positionPixel[0] - bug.positionPixel[2];
+                float maxX = bug.positionPixel[0] + bug.positionPixel[2];
 
                 float ratioCameraFrameStart = minX / config::FIELD_WIDTH_PIXELS;
                 float ratioCameraFrameEnd = maxX / config::FIELD_WIDTH_PIXELS;
