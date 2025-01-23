@@ -60,7 +60,7 @@ private:
 
     int m_tickCounter = 0;
     rclcpp::Time m_timeNow;
-    uint64_t m_startTimeMs;
+    rclcpp::Time m_startTime;
     rclcpp::TimerBase::SharedPtr m_timer;
     rclcpp::TimerBase::SharedPtr m_fireCommandTimer;
     std::priority_queue<FireCommandItem> m_fireCommandQueue;

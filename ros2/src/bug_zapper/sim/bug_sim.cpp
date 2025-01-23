@@ -1,8 +1,8 @@
 #include <random>
 
-#include <config.h>
 #include <bug_factory.h>
 #include <bug_sim.h>
+#include <config.h>
 
 using namespace std::chrono_literals;
 namespace patterns
@@ -26,7 +26,7 @@ BugSim::BugSim(double bugSpeedMin, double bugSpeedMax, uint8_t bugStrength)
     : rclcpp_lifecycle::LifecycleNode("bug_sim_lifecycle_node"), m_bugSpeedMin(bugSpeedMin), m_bugSpeedMax(bugSpeedMax),
       m_bugStrength(bugStrength)
 {
-    m_startTimeMs = RCL_NS_TO_MS(this->get_clock()->now().nanoseconds());
+    m_startTime = this->get_clock()->now();
     m_timer = this->create_wall_timer(100ms, std::bind(&BugSim::simTimerCallback, this));
     m_cameraFramePub = this->create_publisher<sensor_msgs::msg::Image>("cameraFrame", 10);
     m_fireCommandSub = this->create_subscription<bug_zapper_msgs::msg::FireCommand>(
@@ -76,29 +76,33 @@ void BugSim::DrawBug(std::shared_ptr<Bug> bug, cv::Mat &frame)
     }
 }
 
-
 void BugSim::processFireCommandQueue(cv::Mat &frame)
 {
 
-    while (!m_fireCommandQueue.empty()) {
-        const auto& item = m_fireCommandQueue.top();
+    rclcpp::Time timeZero(0, 0, rcl_clock_type_t::RCL_ROS_TIME); // Time 0
+    rclcpp::Duration timeDiff = m_timeNow - m_startTime;
+    rclcpp::Time timeSinceStart = timeZero + timeDiff;
 
-        if (m_timeNow >= item.closing_time) {
+    while (!m_fireCommandQueue.empty()) {
+        const auto &item = m_fireCommandQueue.top();
+
+        if (timeSinceStart >= item.closing_time) {
             // Remove expired item
             m_fireCommandQueue.pop();
             RCLCPP_INFO(this->get_logger(), "FireCommand expired and removed.");
-        } else if (m_timeNow >= item.opening_time) {
+        }
+        else if (timeSinceStart >= item.opening_time) {
             // Trigger the gun
             for (uint8_t gun : item.fireCmdMsg->gun_id) {
                 RCLCPP_WARN(this->get_logger(), "Triggering gun: %d", static_cast<int>(gun));
                 drawGunTriggers(frame, gun);
             }
-        } else {
-            break;  // No items ready yet
+        }
+        else {
+            break; // No items ready yet
         }
     }
 }
-
 
 void BugSim::drawCameraFrame(cv::Mat &frame)
 {
@@ -159,8 +163,8 @@ void BugSim::AddRandomBug(BugType &bugtype)
     }
     }
 
-    int32_t xPos = static_cast<int32_t>(
-        GenerateRandomNumberBetween(config::BUG_OFFSET_FROM_WIDTH_PIXELS, config::FIELD_WIDTH_PIXELS - config::BUG_OFFSET_FROM_WIDTH_PIXELS));
+    int32_t xPos = static_cast<int32_t>(GenerateRandomNumberBetween(
+        config::BUG_OFFSET_FROM_WIDTH_PIXELS, config::FIELD_WIDTH_PIXELS - config::BUG_OFFSET_FROM_WIDTH_PIXELS));
     int32_t yPos = static_cast<int32_t>(GenerateRandomNumberBetween(0, config::BUG_OFFSET_FROM_WIDTH_PIXELS));
 
     m_bugs.push_back(m_bugfactory.CreateBug(bugtype, size, speed, strength, xPos, yPos));
@@ -196,7 +200,6 @@ void BugSim::processBugs(cv::Mat &frame)
     }
 }
 
-
 void BugSim::fireCommandSubCallback(const bug_zapper_msgs::msg::FireCommand::SharedPtr fireCmdMsg)
 {
     RCLCPP_WARN(this->get_logger(), "Received fireCmdMsg!: ");
@@ -205,40 +208,45 @@ void BugSim::fireCommandSubCallback(const bug_zapper_msgs::msg::FireCommand::Sha
         RCLCPP_WARN(this->get_logger(), "Gun fired!: %d", static_cast<int>(gun));
     }
 
-     // Calculate absolute opening and closing times
-    rclcpp::Time opening_time = m_timeNow + rclcpp::Duration::from_seconds(fireCmdMsg->opening_time);
-    rclcpp::Time closing_time = m_timeNow + rclcpp::Duration::from_seconds(fireCmdMsg->closing_time);
+    // Calculate absolute opening and closing times
+    rclcpp::Time timeZero(0, 0, rcl_clock_type_t::RCL_ROS_TIME); // Time 0
+    rclcpp::Time openingTime = timeZero + rclcpp::Duration::from_seconds(fireCmdMsg->opening_time);
+    rclcpp::Time closingTime = timeZero + rclcpp::Duration::from_seconds(fireCmdMsg->closing_time);
 
     // Create and add the item to the queue
-    FireCommandItem item{opening_time, closing_time, fireCmdMsg};
+    FireCommandItem item{openingTime, closingTime, fireCmdMsg};
     m_fireCommandQueue.push(item);
-
-    RCLCPP_INFO(this->get_logger(), "FireCommand received and queued! Opening time: %.2f, Closing time: %.2f",
-                fireCmdMsg->opening_time, fireCmdMsg->closing_time);
-
+    rclcpp::Duration timeDiff = m_timeNow - m_startTime;
+    rclcpp::Time timeSinceStart = timeZero + timeDiff;
+    float timeSinceStartMs = RCL_NS_TO_MS(timeSinceStart.nanoseconds());
+    RCLCPP_INFO(
+        this->get_logger(),
+        "FireCommand received and queued! Current time: %.2f, Opening time: %.2f, Closing time: %.2f",
+        timeSinceStartMs, fireCmdMsg->opening_time, fireCmdMsg->closing_time);
 }
 
-   
 void BugSim::drawGunTriggers(cv::Mat &frame, uint8_t gunID)
 {
     int xPos = gunID * config::FIELD_WIDTH_PIXELS / config::NUM_GUNS;
-    int yPos = config::FIELD_LENGTH_PIXELS -config::GUN_EXPLOSION_RADIUS;
+    int yPos = config::FIELD_LENGTH_PIXELS - config::GUN_EXPLOSION_RADIUS;
 
     cv::Point center(xPos, yPos);
     cv::Scalar lineColor(0, 0, 255);
     int thickness = 3; // filled
     cv::circle(frame, center, config::GUN_EXPLOSION_RADIUS, lineColor, thickness);
-
 }
 
 void BugSim::simTimerCallback()
-{   
+{
+    // rclcpp::Duration timeDiff = this->get_clock()->now() ;
+    // m_timeNow = rclcpp::Time(0, 0, rcl_clock_type_t::RCL_ROS_TIME) + timeDiff;
     m_timeNow = this->get_clock()->now();
-    cv::Mat frame(cv::Size(config::FIELD_WIDTH_PIXELS, config::FIELD_LENGTH_PIXELS), CV_8UC3, cv::Scalar(255, 255, 255));
+    cv::Mat frame(cv::Size(config::FIELD_WIDTH_PIXELS, config::FIELD_LENGTH_PIXELS), CV_8UC3,
+                  cv::Scalar(255, 255, 255));
     processBugs(frame);
     processFireCommandQueue(frame);
     drawCameraFrame(frame);
-    
+
     cv::Mat resized;
     cv::resize(frame, resized, cv::Size(), 0.75, 0.75);
     cv::namedWindow("Bug-Frame");
