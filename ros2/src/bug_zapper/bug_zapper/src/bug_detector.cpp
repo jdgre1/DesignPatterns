@@ -29,7 +29,6 @@ void BugDetector::setupCameraCalibrationConfig()
     fs.release();
 }
 
-
 void BugDetector::Tick(uint64_t &timeNowMs)
 {
     m_timeNowMs = timeNowMs;
@@ -76,7 +75,7 @@ void BugDetector::detectBugs(ImageInfo &frameInfo)
                      10, // Accumulator threshold (lower if detection is poor)
                      2,
                      50 // Min and max radius based on the circle size
-    );                   // Min and max radius of circles
+    );                  // Min and max radius of circles
 
     // Draw the detected circles
     RCLCPP_DEBUG(m_logger, "circles.size(): %zu", circles.size());
@@ -103,7 +102,7 @@ void BugDetector::detectBugs(ImageInfo &frameInfo)
             // Draw circle outline
             cv::circle(frameInfo.frame, center, radius, cv::Scalar(0, 0, 255), 5); // Red circle
         }
-        else{
+        else {
             RCLCPP_WARN(m_logger, "Too many detectons in the buffer!! %zu", m_bugDetectionBuffer.size());
         }
     }
@@ -122,6 +121,19 @@ void BugDetector::processImage(ImageInfo &imageInfo)
     if (!imageInfo.frame.empty()) {
         imageInfo.frame = undistortImage(imageInfo.frame);
         detectBugs(imageInfo);
+        std::string imageText = "Camera-Frame - Image time: " + std::to_string(imageInfo.timestampMillisecs) +
+                                ", Actual-time: " + std::to_string(m_timeNowMs);
+
+        // Font settings
+        cv::Point textOrigin(10, 30); // Start at (10, 30) (pixels from top-left)
+
+        int fontFace = cv::FONT_HERSHEY_SIMPLEX;
+        double fontScale = 0.6;          // Adjust for text size
+        int thickness = 1;               // Thickness of the text
+        cv::Scalar color(0, 0, 0); 
+
+        // Add the text to the image
+        cv::putText(imageInfo.frame, imageText, textOrigin, fontFace, fontScale, color, thickness);
         cv::imshow("Camera Frame", imageInfo.frame);
         cv::waitKey(100); // Wait for a short time to allow OpenCV to process the display
     }
@@ -134,7 +146,7 @@ ImageInfo BugDetector::consumeFifoBuffer()
         m_imageInfoBuffer.pop();                       // Remove the image from the buffer
         uint64_t timestamp = imgInfo.timestampMillisecs;
         uint64_t timestampDiff = m_timeNowMs - timestamp;
-        if (timestampDiff < 2000) {
+        if (timestampDiff < 1500) {
             return imgInfo;
         }
         else {

@@ -38,10 +38,10 @@ bool BugTracker::bugExists(BugTracker::TrackedBug &bug)
 
         if (dispWithinRange && xDisplacementWithinRange && similarRadius && timePassedSinceLastSample) {
             memberBug.positionPixel = bug.positionPixel;
-            RCLCPP_INFO_STREAM(m_logger, " dispWithinRange "
-                                             << dispWithinRange << " xDisplacementWithinRange: "
-                                             << xDisplacementWithinRange << " similarRadius: " << similarRadius
-                                             << " timePassedSinceLastSample: " << timePassedSinceLastSample);
+            // RCLCPP_INFO_STREAM(m_logger, " dispWithinRange "
+            //                                  << dispWithinRange << " xDisplacementWithinRange: "
+            //                                  << xDisplacementWithinRange << " similarRadius: " << similarRadius
+            //                                  << " timePassedSinceLastSample: " << timePassedSinceLastSample);
 
             float velocityPixelPerSec = 1000.0 * (point2.y - point1.y) / (m_timeNowMs - memberBug.lastTimestampMs);
 

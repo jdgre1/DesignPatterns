@@ -94,11 +94,19 @@ void BugSim::processFireCommandQueue(cv::Mat &frame)
         else if (timeSinceStart >= item.opening_time) {
             // Trigger the gun
             for (uint8_t gun : item.fireCmdMsg->gun_id) {
-                RCLCPP_WARN(this->get_logger(), "Triggering gun: %d", static_cast<int>(gun));
+                // RCLCPP_WARN(this->get_logger(), "Triggering gun: %d", static_cast<int>(gun));
                 drawGunTriggers(frame, gun);
             }
         }
         else {
+            // Convert the times to milliseconds for logging
+            uint64_t timeSinceStartMs = timeSinceStart.nanoseconds() / 1'000'000;
+            uint64_t openingTimeMs = item.opening_time.nanoseconds() / 1'000'000;
+            uint64_t closingTimeMs = item.closing_time.nanoseconds() / 1'000'000;
+
+            // Log the time values
+            RCLCPP_INFO(this->get_logger(), "Current Time (ms): %lu, Opening Time (ms): %lu, Closing Time (ms): %lu",
+                        timeSinceStartMs, openingTimeMs, closingTimeMs);
             break; // No items ready yet
         }
     }
@@ -202,11 +210,11 @@ void BugSim::processBugs(cv::Mat &frame)
 
 void BugSim::fireCommandSubCallback(const bug_zapper_msgs::msg::FireCommand::SharedPtr fireCmdMsg)
 {
-    RCLCPP_WARN(this->get_logger(), "Received fireCmdMsg!: ");
+    // RCLCPP_WARN(this->get_logger(), "Received fireCmdMsg!: ");
 
-    for (uint8_t gun : fireCmdMsg->gun_id) {
-        RCLCPP_WARN(this->get_logger(), "Gun fired!: %d", static_cast<int>(gun));
-    }
+    // for (uint8_t gun : fireCmdMsg->gun_id) {
+    //     RCLCPP_WARN(this->get_logger(), "Gun fired!: %d", static_cast<int>(gun));
+    // }
 
     // Calculate absolute opening and closing times
     rclcpp::Time timeZero(0, 0, rcl_clock_type_t::RCL_ROS_TIME); // Time 0
@@ -219,10 +227,9 @@ void BugSim::fireCommandSubCallback(const bug_zapper_msgs::msg::FireCommand::Sha
     rclcpp::Duration timeDiff = m_timeNow - m_startTime;
     rclcpp::Time timeSinceStart = timeZero + timeDiff;
     float timeSinceStartMs = RCL_NS_TO_MS(timeSinceStart.nanoseconds());
-    RCLCPP_INFO(
-        this->get_logger(),
-        "FireCommand received and queued! Current time: %.2f, Opening time: %.2f, Closing time: %.2f",
-        timeSinceStartMs, fireCmdMsg->opening_time, fireCmdMsg->closing_time);
+    RCLCPP_INFO(this->get_logger(),
+                "FireCommand received and queued! Current time: %.2f, Opening time: %.2f, Closing time: %.2f",
+                timeSinceStartMs, fireCmdMsg->opening_time, fireCmdMsg->closing_time);
 }
 
 void BugSim::drawGunTriggers(cv::Mat &frame, uint8_t gunID)
@@ -238,9 +245,14 @@ void BugSim::drawGunTriggers(cv::Mat &frame, uint8_t gunID)
 
 void BugSim::simTimerCallback()
 {
-    // rclcpp::Duration timeDiff = this->get_clock()->now() ;
-    // m_timeNow = rclcpp::Time(0, 0, rcl_clock_type_t::RCL_ROS_TIME) + timeDiff;
     m_timeNow = this->get_clock()->now();
+
+    rclcpp::Time timeZero(0, 0, rcl_clock_type_t::RCL_ROS_TIME); // Time 0
+    rclcpp::Duration timeDiff = m_timeNow - m_startTime;
+    rclcpp::Time timeSinceStart = timeZero + timeDiff;
+    float timeSinceStartMs = RCL_NS_TO_MS(timeSinceStart.nanoseconds());
+    // RCLCPP_INFO(this->get_logger(), "Current Sim time: %.2f", timeSinceStartMs);
+
     cv::Mat frame(cv::Size(config::FIELD_WIDTH_PIXELS, config::FIELD_LENGTH_PIXELS), CV_8UC3,
                   cv::Scalar(255, 255, 255));
     processBugs(frame);
@@ -249,7 +261,20 @@ void BugSim::simTimerCallback()
 
     cv::Mat resized;
     cv::resize(frame, resized, cv::Size(), 0.75, 0.75);
-    cv::namedWindow("Bug-Frame");
+    std::string imageText = "Bug-Frame - Sim time: " + std::to_string(timeSinceStartMs);
+
+    // cv::namedWindow("Bug-Frame");
+    cv::Point textOrigin(10, 30); // Start at (10, 30) (pixels from top-left)
+
+    // Font settings
+    int fontFace = cv::FONT_HERSHEY_SIMPLEX;
+    double fontScale = 0.6; // Adjust for text size
+    int thickness = 1;      // Thickness of the text
+    cv::Scalar color(0, 0, 0);
+
+    // Add the text to the image
+    cv::putText(resized, imageText, textOrigin, fontFace, fontScale, color, thickness);
+
     cv::imshow("Bug-Frame", resized);
     cv::waitKey(100);
 }

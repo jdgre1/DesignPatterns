@@ -77,11 +77,11 @@ void BugManager::processBugs(uint64_t &timeNowMs)
                 float minY = bug.positionPixel[1] - bug.positionPixel[2];
                 float maxY = bug.positionPixel[1] + bug.positionPixel[2];
                 float totalBugLength = maxY - minY;
-                float firingDurationMs = 1000 * totalBugLength / bug.velocityPixelPerSec;
+                float firingDurationSecs = totalBugLength / bug.velocityPixelPerSec;
 
                 bug_zapper_msgs::msg::FireCommand fireCmdMsg;
-                fireCmdMsg.opening_time = timeNowMs + bugTimeToFireSecs * 1000;
-                fireCmdMsg.closing_time = fireCmdMsg.opening_time + firingDurationMs;
+                fireCmdMsg.opening_time = timeNowMs / 1000.0 + bugTimeToFireSecs;
+                fireCmdMsg.closing_time = fireCmdMsg.opening_time + firingDurationSecs;
 
                 // Determine fire-command message guns:
                 float minX = bug.positionPixel[0] - bug.positionPixel[2];
@@ -107,11 +107,11 @@ void BugManager::processBugs(uint64_t &timeNowMs)
                 // Push the fire command message to the vector
                 m_fireCommandMessages.push_back(fireCmdMsg);
 
-                RCLCPP_ERROR_STREAM(m_logger, "\nSending fire command based on a time-to-fire of " << bugTimeToFireSecs
-                                                                                                   << "seconds.");
-                for (uint8_t gun = gunMin; gun <= gunMax; ++gun) {
-                    RCLCPP_ERROR_STREAM(m_logger, "\nFiring gun; " << static_cast<int>(gun));
-                }
+                // RCLCPP_ERROR_STREAM(m_logger, "\nSending fire command based on a time-to-fire of " << bugTimeToFireSecs
+                                                                                                //    << "seconds.");
+                // for (uint8_t gun = gunMin; gun <= gunMax; ++gun) {
+                //     RCLCPP_ERROR_STREAM(m_logger, "\nFiring gun; " << static_cast<int>(gun));
+                // }
                 bugsToRemove.push_back(bugIdx);
             }
         }

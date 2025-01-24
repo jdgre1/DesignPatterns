@@ -16,7 +16,7 @@ BugZapper::BugZapper(uint8_t id)
     m_cameraFrameSub = this->create_subscription<sensor_msgs::msg::Image>(
         "cameraFrame", 10, std::bind(&BugZapper::cameraFrameSubCb, this, std::placeholders::_1));
     // Create a 10Hz timer to call the Tick function
-    auto timerInterval = std::chrono::milliseconds(100); // 100ms = 10Hz
+    auto timerInterval = std::chrono::milliseconds(50); // 50ms = 20Hz
     
     m_tickTimer = this->create_wall_timer(timerInterval, std::bind(&BugZapper::Tick, this));
 
@@ -80,6 +80,13 @@ void BugZapper::updateTransform()
 void BugZapper::Tick()
 {   
     m_timeNowMs = RCL_NS_TO_MS(rclcpp::Clock().now().nanoseconds()) - m_startTimeMs;
+    // m_timeNow = this->get_clock()->now();
+    
+    // rclcpp::Duration timeDiff = m_timeNow - m_startTime;
+    // rclcpp::Time timeSinceStart = timeZero + timeDiff;
+    // float timeSinceStartMs = RCL_NS_TO_MS(timeSinceStart.nanoseconds());
+    // RCLCPP_INFO(this->get_logger(), "Current Robot time: %ld", m_timeNowMs);
+    
     updateTransform();
     
     // Detector update
