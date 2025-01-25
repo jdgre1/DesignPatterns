@@ -83,7 +83,7 @@ void BugSim::processFireCommandQueue(cv::Mat &frame)
     rclcpp::Duration timeDiff = m_timeNow - m_startTime;
     rclcpp::Time timeSinceStart = timeZero + timeDiff;
 
-    while (!m_fireCommandQueue.empty()) {
+    for (; !m_fireCommandQueue.empty();) {
         const auto &item = m_fireCommandQueue.top();
 
         if (timeSinceStart >= item.closing_time) {
@@ -94,9 +94,10 @@ void BugSim::processFireCommandQueue(cv::Mat &frame)
         else if (timeSinceStart >= item.opening_time) {
             // Trigger the gun
             for (uint8_t gun : item.fireCmdMsg->gun_id) {
-                // RCLCPP_WARN(this->get_logger(), "Triggering gun: %d", static_cast<int>(gun));
                 drawGunTriggers(frame, gun);
             }
+            // Remove the item after processing
+            m_fireCommandQueue.pop();
         }
         else {
             // Convert the times to milliseconds for logging
@@ -107,7 +108,7 @@ void BugSim::processFireCommandQueue(cv::Mat &frame)
             // Log the time values
             RCLCPP_INFO(this->get_logger(), "Current Time (ms): %lu, Opening Time (ms): %lu, Closing Time (ms): %lu",
                         timeSinceStartMs, openingTimeMs, closingTimeMs);
-            break; // No items ready yet
+            break; // No items ready yet, stop looping over the priority queue (items ordered first have the earliest opening time)
         }
     }
 }
