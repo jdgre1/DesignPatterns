@@ -82,34 +82,34 @@ void BugSim::processFireCommandQueue(cv::Mat &frame)
     rclcpp::Time timeZero(0, 0, rcl_clock_type_t::RCL_ROS_TIME); // Time 0
     rclcpp::Duration timeDiff = m_timeNow - m_startTime;
     rclcpp::Time timeSinceStart = timeZero + timeDiff;
+    int64_t timeSinceStartMs = timeSinceStart.nanoseconds() / 1'000'000;
 
-    for (; !m_fireCommandQueue.empty();) {
-        const auto &item = m_fireCommandQueue.top();
+    for (auto it = m_fireCommands.begin(); it != m_fireCommands.end(); /* no increment here */) {
+        const auto &item = *it;
 
-        if (timeSinceStart >= item.closing_time) {
-            // Remove expired item
-            m_fireCommandQueue.pop();
+        int64_t openingTimeMs = item.opening_time.nanoseconds() / 1'000'000;
+        int64_t closingTimeMs = item.closing_time.nanoseconds() / 1'000'000;
+
+        if (timeSinceStartMs >= closingTimeMs) {
+            // Erase expired item
+            it = m_fireCommands.erase(it);
             RCLCPP_INFO(this->get_logger(), "FireCommand expired and removed.");
+            continue;
         }
-        else if (timeSinceStart >= item.opening_time) {
-            // Trigger the gun
-            for (uint8_t gun : item.fireCmdMsg->gun_id) {
+        else if (timeSinceStartMs >= openingTimeMs) {
+            // Process the command (draw explosions)
+            for (uint8_t gun : item.gunIds) {
                 drawGunTriggers(frame, gun);
             }
-            // Remove the item after processing
-            m_fireCommandQueue.pop();
+            // If you want the explosion to persist as long as the object is in the region,
+            // you might leave the item in place. Otherwise, decide if it should be removed.
         }
         else {
-            // Convert the times to milliseconds for logging
-            uint64_t timeSinceStartMs = timeSinceStart.nanoseconds() / 1'000'000;
-            uint64_t openingTimeMs = item.opening_time.nanoseconds() / 1'000'000;
-            uint64_t closingTimeMs = item.closing_time.nanoseconds() / 1'000'000;
-
             // Log the time values
             RCLCPP_INFO(this->get_logger(), "Current Time (ms): %lu, Opening Time (ms): %lu, Closing Time (ms): %lu",
                         timeSinceStartMs, openingTimeMs, closingTimeMs);
-            break; // No items ready yet, stop looping over the priority queue (items ordered first have the earliest opening time)
         }
+        ++it;
     }
 }
 
@@ -216,21 +216,30 @@ void BugSim::fireCommandSubCallback(const bug_zapper_msgs::msg::FireCommand::Sha
     // for (uint8_t gun : fireCmdMsg->gun_id) {
     //     RCLCPP_WARN(this->get_logger(), "Gun fired!: %d", static_cast<int>(gun));
     // }
+    if (m_fireCommands.size() <= 20) {
+        // Calculate absolute opening and closing times
 
-    // Calculate absolute opening and closing times
-    rclcpp::Time timeZero(0, 0, rcl_clock_type_t::RCL_ROS_TIME); // Time 0
-    rclcpp::Time openingTime = timeZero + rclcpp::Duration::from_seconds(fireCmdMsg->opening_time);
-    rclcpp::Time closingTime = timeZero + rclcpp::Duration::from_seconds(fireCmdMsg->closing_time);
+        rclcpp::Time timeZero(0, 0, rcl_clock_type_t::RCL_ROS_TIME); // Time 0
+        rclcpp::Time openingTime = timeZero + rclcpp::Duration::from_seconds(fireCmdMsg->opening_time);
+        rclcpp::Time closingTime = timeZero + rclcpp::Duration::from_seconds(fireCmdMsg->closing_time);
 
-    // Create and add the item to the queue
-    FireCommandItem item{openingTime, closingTime, fireCmdMsg};
-    m_fireCommandQueue.push(item);
-    rclcpp::Duration timeDiff = m_timeNow - m_startTime;
-    rclcpp::Time timeSinceStart = timeZero + timeDiff;
-    float timeSinceStartMs = RCL_NS_TO_MS(timeSinceStart.nanoseconds());
-    RCLCPP_INFO(this->get_logger(),
-                "FireCommand received and queued! Current time: %.2f, Opening time: %.2f, Closing time: %.2f",
-                timeSinceStartMs, fireCmdMsg->opening_time, fireCmdMsg->closing_time);
+        // Create and add the item to the vector
+        std::vector<uint8_t> gunIds;
+        for (uint8_t gun : fireCmdMsg->gun_id) {
+            gunIds.push_back(gun);
+        }
+        FireCommandItem item{openingTime, closingTime, gunIds};
+        m_fireCommands.push_back(item);
+        rclcpp::Duration timeDiff = m_timeNow - m_startTime;
+        rclcpp::Time timeSinceStart = timeZero + timeDiff;
+        float timeSinceStartMs = RCL_NS_TO_MS(timeSinceStart.nanoseconds());
+        RCLCPP_INFO(this->get_logger(),
+                    "FireCommand received and queued! Current time: %.2f, Opening time: %.2f, Closing time: %.2f",
+                    timeSinceStartMs, fireCmdMsg->opening_time, fireCmdMsg->closing_time);
+    }
+    else {
+        RCLCPP_WARN(this->get_logger(), "Fire command vector is full!!");
+    }
 }
 
 void BugSim::drawGunTriggers(cv::Mat &frame, uint8_t gunID)
@@ -239,9 +248,37 @@ void BugSim::drawGunTriggers(cv::Mat &frame, uint8_t gunID)
     int yPos = config::FIELD_LENGTH_PIXELS - config::GUN_EXPLOSION_RADIUS;
 
     cv::Point center(xPos, yPos);
-    cv::Scalar lineColor(0, 0, 255);
-    int thickness = 3; // filled
-    cv::circle(frame, center, config::GUN_EXPLOSION_RADIUS, lineColor, thickness);
+    // cv::Scalar lineColor(0, 0, 255);
+    std::vector<cv::Scalar> gunColors = {
+        cv::Scalar(255, 0, 0),    // Red
+        cv::Scalar(0, 255, 0),    // Green
+        cv::Scalar(0, 0, 255),    // Blue
+        cv::Scalar(255, 255, 0),  // Cyan
+        cv::Scalar(255, 0, 255),  // Magenta
+        cv::Scalar(0, 255, 255),  // Yellow
+        cv::Scalar(128, 0, 128),  // Purple
+        cv::Scalar(128, 128, 0),  // Olive
+        cv::Scalar(0, 128, 128),  // Teal
+        cv::Scalar(192, 192, 192) // Silver
+    };
+
+    // Ensure gunID is in the range [0, 9]
+    if (gunID >= 0 && gunID < 10) {
+        cv::Scalar lineColor = gunColors[gunID];
+        cv::circle(frame, center, 10, lineColor, -1); // Draw the circle with the selected color
+        // Font settings
+        int fontFace = cv::FONT_HERSHEY_SIMPLEX;
+        double fontScale = 0.6; // Adjust for text size
+        int thickness = 1;      // Thickness of the text
+        cv::Scalar color(255, 255, 255);
+        cv::putText(frame, std::to_string(gunID), center, fontFace, fontScale, color, thickness);
+    }
+    else {
+        RCLCPP_WARN(this->get_logger(), "Invalid gunID: %d", gunID);
+    }
+
+    // int thickness = -1; // filled
+    // cv::circle(frame, center, config::GUN_EXPLOSION_RADIUS, lineColor, thickness);
 }
 
 void BugSim::simTimerCallback()

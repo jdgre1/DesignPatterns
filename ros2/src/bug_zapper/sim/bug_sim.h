@@ -3,7 +3,6 @@
 #define BUGSIM_H
 
 #include <iostream>
-#include <queue>
 #include <vector>
 
 #include <opencv2/core/core.hpp>
@@ -25,12 +24,7 @@ namespace patterns
 struct FireCommandItem {
     rclcpp::Time opening_time;
     rclcpp::Time closing_time;
-    bug_zapper_msgs::msg::FireCommand::SharedPtr fireCmdMsg;
-
-    // Comparison operator for priority queue (min-heap)
-    bool operator<(const FireCommandItem& other) const {
-        return opening_time > other.opening_time;  // Reverse for min-heap
-    }
+    std::vector<uint8_t> gunIds;
 };
 
 
@@ -63,7 +57,7 @@ private:
     rclcpp::Time m_startTime;
     rclcpp::TimerBase::SharedPtr m_timer;
     rclcpp::TimerBase::SharedPtr m_fireCommandTimer;
-    std::priority_queue<FireCommandItem> m_fireCommandQueue;
+    std::vector<FireCommandItem> m_fireCommands;
 
     std::vector<std::shared_ptr<Bug>> m_bugs;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_cameraFramePub;
