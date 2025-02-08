@@ -232,10 +232,10 @@ void BugSim::fireCommandSubCallback(const bug_zapper_msgs::msg::FireCommand::Sha
         m_fireCommands.push_back(item);
         rclcpp::Duration timeDiff = m_timeNow - m_startTime;
         rclcpp::Time timeSinceStart = timeZero + timeDiff;
-        float timeSinceStartMs = RCL_NS_TO_MS(timeSinceStart.nanoseconds());
+        float timeSinceStartSecs = RCL_NS_TO_MS(timeSinceStart.nanoseconds()) / 1000.0;
         RCLCPP_INFO(this->get_logger(),
                     "FireCommand received and queued! Current time: %.2f, Opening time: %.2f, Closing time: %.2f",
-                    timeSinceStartMs, fireCmdMsg->opening_time, fireCmdMsg->closing_time);
+                    timeSinceStartSecs, fireCmdMsg->opening_time, fireCmdMsg->closing_time);
     }
     else {
         RCLCPP_WARN(this->get_logger(), "Fire command vector is full!!");

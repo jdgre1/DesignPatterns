@@ -113,11 +113,11 @@ float BugTracker::calculateBugIdxTimeToFire(size_t idx)
 {
     BugTracker::TrackedBug bug = at(idx);
     if (bug.numUpdates > 0) {
-        float distanceLeftPixels = config::FIELD_LENGTH_PIXELS * 0.5 - bug.positionPixel[1];
+        float distanceLeftPixels = config::CAMERA_LENGTH_PIXELS * 1.2 - bug.positionPixel[1];
         float timeToFireSecs = distanceLeftPixels / bug.velocityPixelPerSec;
-        // RCLCPP_INFO_STREAM(m_logger, " Bug: distanceLeftPixels: " << distanceLeftPixels << ".");
-        // RCLCPP_INFO_STREAM(m_logger, " Bug: bug.velocityPixelPerSec: " << bug.velocityPixelPerSec << ".");
-        // RCLCPP_INFO_STREAM(m_logger, " Bug: Time to fire: " << timeToFireSecs << " seconds.");
+        RCLCPP_INFO_STREAM(m_logger, " Bug: distanceLeftPixels: " << distanceLeftPixels << ".");
+        RCLCPP_INFO_STREAM(m_logger, " Bug: bug.velocityPixelPerSec: " << bug.velocityPixelPerSec << ".");
+        RCLCPP_INFO_STREAM(m_logger, " Bug: Time to fire: " << timeToFireSecs << " seconds.");
         return timeToFireSecs;
     }
     else {
