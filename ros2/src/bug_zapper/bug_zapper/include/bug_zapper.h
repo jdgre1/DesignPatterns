@@ -18,8 +18,9 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <std_msgs/msg/header.hpp>
 
-#include <bug_manager.h>
 #include <bug_detector.h>
+#include <bug_manager.h>
+#include <bug_recorder.h>
 #include <bug_tracker.h>
 #include <camera.h>
 #include <fire_controller.h>
@@ -33,7 +34,8 @@ public:
     BugZapper(uint8_t id);
     void Tick();
     void SetDetector(std::shared_ptr<BugDetector> det);
-    // Getter function for tfBuffer
+    void SetRecorder(std::shared_ptr<BugRecorder> rec);
+
     std::shared_ptr<tf2_ros::Buffer> getTfBuffer()
     {
         return m_tfBuffer;
@@ -53,6 +55,7 @@ private:
 
     std::shared_ptr<BugManager> m_bugManager;
     std::shared_ptr<BugDetector> m_detector;
+    std::shared_ptr<BugRecorder> m_recorder;
     std::unique_ptr<FireController> m_fireController;
     rclcpp::Publisher<bug_zapper_msgs::msg::FireCommand>::SharedPtr m_fireCommandPub;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr m_cameraFrameSub;

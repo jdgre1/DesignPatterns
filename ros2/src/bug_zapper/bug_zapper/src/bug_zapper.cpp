@@ -80,12 +80,6 @@ void BugZapper::updateTransform()
 void BugZapper::Tick()
 {   
     m_timeNowMs = RCL_NS_TO_MS(rclcpp::Clock().now().nanoseconds()) - m_startTimeMs;
-    // m_timeNow = this->get_clock()->now();
-    
-    // rclcpp::Duration timeDiff = m_timeNow - m_startTime;
-    // rclcpp::Time timeSinceStart = timeZero + timeDiff;
-    // float timeSinceStartMs = RCL_NS_TO_MS(timeSinceStart.nanoseconds());
-    // RCLCPP_INFO(this->get_logger(), "Current Robot time: %ld", m_timeNowMs);
     
     updateTransform();
     
@@ -105,5 +99,11 @@ void BugZapper::SetDetector(std::shared_ptr<BugDetector> det)
 {
     m_detector = det;
 }
+
+void BugZapper::SetRecorder(std::shared_ptr<BugRecorder> rec)
+{
+    m_recorder = rec;
+}
+
 
 } // namespace patterns

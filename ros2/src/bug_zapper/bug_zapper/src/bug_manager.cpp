@@ -65,7 +65,7 @@ void BugManager::processBugs(uint64_t &timeNowMs)
 
     for (size_t bugIdx = 0; bugIdx < m_bugTracker->size(); bugIdx++) {
         BugTracker::TrackedBug &bug = m_bugTracker->at(bugIdx);
-        if (abs(bug.velocityPixelPerSec) > 0 && abs(bug.velocityPixelPerSec < 10000)) {
+        if (abs(bug.velocityPixelPerSec) > 0) {
             bug.positionPixel[1] += bug.velocityPixelPerSec * (timeNowMs - bug.lastTimestampMs) / 1000.0;
             bug.lastTimestampMs = timeNowMs;
             bug.numUpdates++;
@@ -75,7 +75,7 @@ void BugManager::processBugs(uint64_t &timeNowMs)
 
             if (bugTimeToFireSecs < 1.0) {
                 float minY = bug.positionPixel[1] - bug.positionPixel[2];
-                float maxY = bug.positionPixel[1] + bug.positionPixel[2];
+                float maxY = bug.positionPixel[1] + bug.positionPixel[2]; // radius is idx = 2
                 float totalBugLength = maxY - minY;
                 float firingDurationSecs = totalBugLength / bug.velocityPixelPerSec;
 

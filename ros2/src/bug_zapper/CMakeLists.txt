@@ -18,6 +18,7 @@ find_package(tf2_ros REQUIRED)
 find_package(bug_zapper_msgs REQUIRED)
 
 find_package(OpenCV REQUIRED)
+find_package(CURL REQUIRED)
 
 include_directories(
     sim
@@ -39,6 +40,7 @@ add_executable(BUG_ZAP
     bug_zapper/src/bug_detector.cpp
     bug_zapper/src/bug_manager.cpp
     bug_zapper/src/bug_tracker.cpp
+    bug_zapper/src/bug_recorder.cpp
     bug_zapper/src/bug_zapper.cpp
     bug_zapper/src/camera.cpp
     bug_zapper/include/config.h
@@ -73,6 +75,7 @@ target_link_libraries(BUG_SIM
 
 target_link_libraries(BUG_ZAP
     ${COMMON_LIBS}
+    CURL::libcurl  # Explicitly link libcurl
 )
 
 install(TARGETS
