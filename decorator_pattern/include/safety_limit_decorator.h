@@ -1,3 +1,4 @@
+#pragma once
 #include <motor_controller.h>
 
 namespace patterns {
@@ -22,4 +23,4 @@ class SafetyLimiterDecorator : public MotorController
             base_->SetSpeed(speed);
         }
     };
-}
+};

@@ -1,13 +1,14 @@
+#pragma once
 #include <motor_controller.h>
 
 namespace patterns {
 
-class ThermalProtectionDecorator : BasicMotorController
+class ThermalProtectionDecorator : public MotorController
 {
-    std::shared_ptr<BasicMotorController> base_;
+    std::shared_ptr<MotorController> base_;
     
     public:
-        ThermalProtectionDecorator(std::shared_ptr<BasicMotorController> base)
+        ThermalProtectionDecorator(std::shared_ptr<MotorController> base)
         :  base_(std::move(base))
         {}
 

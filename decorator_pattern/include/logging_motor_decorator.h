@@ -1,3 +1,4 @@
+#pragma once
 #include <motor_controller.h>
 
 
@@ -17,5 +18,6 @@ class LoggingMotorDecorator : public MotorController
             std::cout << "[Log] SetSpeed called with value: " << speed << std::endl;
             base_->SetSpeed(speed);
         }
+
 };
 }
