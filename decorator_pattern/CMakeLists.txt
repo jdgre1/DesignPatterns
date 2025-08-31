@@ -11,6 +11,7 @@ add_executable(robotics_decorator_pattern
     include/motor_controller.h
     include/logging_motor_decorator.h
     include/safety_limit_decorator.h
+    include/sensor_decorator.h
     include/thermal_protection_decorator.h
 )
 
