@@ -16,28 +16,19 @@ public:
 
 class BasicMotorController : public MotorController
 {
-    std::shared_ptr<MotorController> base_;
+    double speed_{0.0};
 
 public:
-    BasicMotorController(std::shared_ptr<MotorController> base = nullptr) : base_(std::move(base))
-    {
-        if (!base_) {
-            throw std::invalid_argument("ThermalProtectionDecorator requires a valid MotorController");
-        }
+   
+    BasicMotorController() = default;
+
+    void SetSpeed(double speed) override {
+        speed_ = speed;
+        std::cout << "Speed set to " << speed << "\n";
     }
 
-    void SetSpeed(double speed) override
-    {
-        if (base_) {
-            base_->SetSpeed(speed);
-        }
-        else {
-            std::cout << "[Basic] Speed set to " << speed << std::endl;
-        }
-    }
-    double GetSpeed() const override
-    {
-        return base_ ? base_->GetSpeed() : 0.0; // Dummywert
+    double GetSpeed() const override {
+        return speed_;
     }
 
 protected:

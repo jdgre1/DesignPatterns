@@ -11,11 +11,11 @@ class SafetyLimiterDecorator : public MotorController
     double maxSpeed_;
 
 public:
-    SafetyLimiterDecorator(std::shared_ptr<MotorController> base, double maxSpeed)
+    explicit SafetyLimiterDecorator(std::shared_ptr<MotorController> base, double maxSpeed)
         : base_(std::move(base)), maxSpeed_(maxSpeed)
     {
         if (!base_) {
-            throw std::invalid_argument("ThermalProtectionDecorator requires a valid MotorController");
+            throw std::invalid_argument("SafetyLimiterDecorator requires a valid MotorController");
         }
     }
 

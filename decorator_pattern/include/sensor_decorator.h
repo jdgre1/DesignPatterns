@@ -12,7 +12,7 @@ public:
     explicit SensorDecorator(std::shared_ptr<MotorController> base) : base_(std::move(base))
     {
         if (!base_) {
-            throw std::invalid_argument("ThermalProtectionDecorator requires a valid MotorController");
+            throw std::invalid_argument("SensorDecorator requires a valid MotorController");
         }
     }
 

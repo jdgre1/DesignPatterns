@@ -11,7 +11,7 @@ class ThermalProtectionDecorator : public MotorController
     double maxSafeTemperature_ = 80.0; // °C
 
 public:
-    ThermalProtectionDecorator(std::shared_ptr<MotorController> base) : base_(std::move(base))
+    explicit ThermalProtectionDecorator(std::shared_ptr<MotorController> base) : base_(std::move(base))
     {
         if (!base_) {
             throw std::invalid_argument("ThermalProtectionDecorator requires a valid MotorController");
